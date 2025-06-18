@@ -1,0 +1,7 @@
+{
+  "name": "BibliotecaManagement",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
