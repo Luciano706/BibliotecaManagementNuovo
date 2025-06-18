@@ -1,0 +1,231 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Gestione Libri</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="manage-books-container">
+    <ion-segment [(ngModel)]="selectedSegment">
+      <ion-segment-button value="add-book">
+        <ion-label>Aggiungi al Catalogo</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="add-to-library">
+        <ion-label>Gestisci Biblioteca</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <!-- Add Book to Catalog -->
+    <div *ngIf="selectedSegment === 'add-book'">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Aggiungi Libro al Catalogo</ion-card-title>
+        </ion-card-header>
+        
+        <ion-card-content>
+          <form [formGroup]="addBookForm" (ngSubmit)="onAddBook()">
+            <ion-item>
+              <ion-label position="stacked">Titolo *</ion-label>
+              <ion-input 
+                type="text" 
+                formControlName="title"
+                placeholder="Inserisci il titolo del libro">
+              </ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Autore *</ion-label>
+              <ion-input 
+                type="text" 
+                formControlName="author"
+                placeholder="Inserisci l'autore">
+              </ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">ISBN *</ion-label>
+              <ion-input 
+                type="text" 
+                formControlName="isbn"
+                placeholder="Inserisci l'ISBN">
+              </ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Categoria *</ion-label>
+              <ion-input 
+                type="text" 
+                formControlName="category"
+                placeholder="Inserisci la categoria">
+              </ion-input>
+            </ion-item>
+
+            <div class="error-messages" *ngIf="addBookForm.invalid && addBookForm.touched">
+              <ion-text color="danger" *ngIf="addBookForm.get('title')?.hasError('required')">
+                Titolo è richiesto
+              </ion-text>
+              <ion-text color="danger" *ngIf="addBookForm.get('author')?.hasError('required')">
+                Autore è richiesto
+              </ion-text>
+              <ion-text color="danger" *ngIf="addBookForm.get('isbn')?.hasError('required')">
+                ISBN è richiesto
+              </ion-text>
+              <ion-text color="danger" *ngIf="addBookForm.get('category')?.hasError('required')">
+                Categoria è richiesta
+              </ion-text>
+            </div>
+
+            <ion-button 
+              expand="block" 
+              type="submit" 
+              [disabled]="isSubmitting || addBookForm.invalid"
+              class="submit-button">
+              <ion-spinner *ngIf="isSubmitting"></ion-spinner>
+              <span *ngIf="!isSubmitting">Aggiungi al Catalogo</span>
+            </ion-button>
+          </form>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Add to Library -->
+    <div *ngIf="selectedSegment === 'add-to-library'">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Gestisci Inventario Biblioteca</ion-card-title>
+        </ion-card-header>
+        
+        <ion-card-content>
+          <form [formGroup]="addToLibraryForm" (ngSubmit)="onAddToLibrary()">
+            <ion-item>
+              <ion-label position="stacked">Biblioteca *</ion-label>
+              <ion-select formControlName="library_id" placeholder="Seleziona biblioteca">
+                <ion-select-option 
+                  *ngFor="let library of libraries" 
+                  [value]="library.id">
+                  {{ library.name }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Azione *</ion-label>
+              <ion-select formControlName="action" placeholder="Seleziona azione">
+                <ion-select-option value="existing">Aggiungi libro esistente</ion-select-option>
+                <ion-select-option value="new">Crea nuovo libro</ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <!-- Existing Book Fields -->
+            <div *ngIf="addToLibraryForm.get('action')?.value === 'existing'">
+              <ion-item>
+                <ion-label position="stacked">ID Libro *</ion-label>
+                <ion-input 
+                  type="number" 
+                  formControlName="book_id"
+                  placeholder="Inserisci l'ID del libro">
+                </ion-input>
+              </ion-item>
+            </div>
+
+            <!-- New Book Fields -->
+            <div *ngIf="addToLibraryForm.get('action')?.value === 'new'">
+              <ion-item>
+                <ion-label position="stacked">Titolo *</ion-label>
+                <ion-input 
+                  type="text" 
+                  formControlName="title"
+                  placeholder="Inserisci il titolo del libro">
+                </ion-input>
+              </ion-item>
+
+              <ion-item>
+                <ion-label position="stacked">Autore *</ion-label>
+                <ion-input 
+                  type="text" 
+                  formControlName="author"
+                  placeholder="Inserisci l'autore">
+                </ion-input>
+              </ion-item>
+
+              <ion-item>
+                <ion-label position="stacked">ISBN *</ion-label>
+                <ion-input 
+                  type="text" 
+                  formControlName="isbn"
+                  placeholder="Inserisci l'ISBN">
+                </ion-input>
+              </ion-item>
+
+              <ion-item>
+                <ion-label position="stacked">Categoria *</ion-label>
+                <ion-input 
+                  type="text" 
+                  formControlName="category"
+                  placeholder="Inserisci la categoria">
+                </ion-input>
+              </ion-item>
+            </div>
+
+            <ion-item>
+              <ion-label position="stacked">Numero di Copie *</ion-label>
+              <ion-input 
+                type="number" 
+                formControlName="copies"
+                min="1"
+                placeholder="Inserisci il numero di copie">
+              </ion-input>
+            </ion-item>
+
+            <div class="error-messages" *ngIf="addToLibraryForm.invalid && addToLibraryForm.touched">
+              <ion-text color="danger" *ngIf="addToLibraryForm.get('library_id')?.hasError('required')">
+                Biblioteca è richiesta
+              </ion-text>
+              <ion-text color="danger" *ngIf="addToLibraryForm.get('book_id')?.hasError('required')">
+                ID libro è richiesto
+              </ion-text>
+              <ion-text color="danger" *ngIf="addToLibraryForm.get('title')?.hasError('required')">
+                Titolo è richiesto
+              </ion-text>
+              <ion-text color="danger" *ngIf="addToLibraryForm.get('author')?.hasError('required')">
+                Autore è richiesto
+              </ion-text>
+              <ion-text color="danger" *ngIf="addToLibraryForm.get('isbn')?.hasError('required')">
+                ISBN è richiesto
+              </ion-text>
+              <ion-text color="danger" *ngIf="addToLibraryForm.get('category')?.hasError('required')">
+                Categoria è richiesta
+              </ion-text>
+              <ion-text color="danger" *ngIf="addToLibraryForm.get('copies')?.hasError('required')">
+                Numero di copie è richiesto
+              </ion-text>
+            </div>
+
+            <ion-button 
+              expand="block" 
+              type="submit" 
+              [disabled]="isSubmitting || addToLibraryForm.invalid"
+              class="submit-button">
+              <ion-spinner *ngIf="isSubmitting"></ion-spinner>
+              <span *ngIf="!isSubmitting">
+                {{ addToLibraryForm.get('action')?.value === 'existing' ? 'Aggiungi Copie' : 'Crea e Aggiungi' }}
+              </span>
+            </ion-button>
+          </form>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+
+  <ion-toast
+    [isOpen]="showToast"
+    [message]="toastMessage"
+    duration="3000"
+    position="top"
+    color="success"
+    (didDismiss)="onToastDismiss()">
+  </ion-toast>
+</ion-content>

@@ -1,0 +1,178 @@
+<ion-content [fullscreen]="true" class="register-content">
+  <!-- Background Elements -->
+  <div class="background-elements">
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+    <div class="floating-shape shape-3"></div>
+    <div class="floating-shape shape-4"></div>
+  </div>
+
+  <!-- Back Button -->
+  <div class="back-button-container">
+    <ion-button fill="clear" (click)="goToLogin()" class="back-button">
+      <ion-icon name="arrow-back-outline"></ion-icon>
+      <span>Torna al Login</span>
+    </ion-button>
+  </div>
+
+  <div class="register-container">
+    <!-- Brand Section -->
+    <div class="brand-section">
+      <div class="logo-container">
+        <ion-icon name="person-add-outline" class="brand-logo"></ion-icon>
+      </div>
+      <h1 class="brand-title">Unisciti a Noi</h1>
+      <p class="brand-subtitle">Crea il tuo account per accedere al sistema</p>
+    </div>
+
+    <!-- Registration Form Card -->
+    <div class="register-card">
+      <div class="card-header">
+        <h2>Registrazione</h2>
+        <p>Compila tutti i campi richiesti</p>
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+        <!-- Username Field -->
+        <div class="input-group">
+          <label class="input-label">Username *</label>
+          <div class="input-container">
+            <ion-icon name="person-outline" class="input-icon"></ion-icon>
+            <ion-input 
+              type="text" 
+              formControlName="username"
+              placeholder="Scegli un username"
+              class="custom-input">
+            </ion-input>
+          </div>
+          <div class="error-message" *ngIf="registerForm.get('username')?.hasError('required') && registerForm.get('username')?.touched">
+            Username è richiesto
+          </div>
+          <div class="error-message" *ngIf="registerForm.get('username')?.hasError('minlength') && registerForm.get('username')?.touched">
+            Username deve essere almeno 3 caratteri
+          </div>
+        </div>
+
+        <!-- Email Field -->
+        <div class="input-group">
+          <label class="input-label">Email *</label>
+          <div class="input-container">
+            <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+            <ion-input 
+              type="email" 
+              formControlName="email"
+              placeholder="Inserisci la tua email"
+              class="custom-input">
+            </ion-input>
+          </div>
+          <div class="error-message" *ngIf="registerForm.get('email')?.hasError('required') && registerForm.get('email')?.touched">
+            Email è richiesta
+          </div>
+          <div class="error-message" *ngIf="registerForm.get('email')?.hasError('email') && registerForm.get('email')?.touched">
+            Email non valida
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div class="input-group">
+          <label class="input-label">Password *</label>
+          <div class="input-container">
+            <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+            <ion-input 
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Scegli una password"
+              class="custom-input">
+            </ion-input>
+            <ion-button 
+              fill="clear" 
+              class="password-toggle"
+              (click)="togglePasswordVisibility()">
+              <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </ion-button>
+          </div>
+          <div class="error-message" *ngIf="registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched">
+            Password è richiesta
+          </div>
+          <div class="error-message" *ngIf="registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched">
+            Password deve essere almeno 6 caratteri
+          </div>
+        </div>
+
+        <!-- Role Selection -->
+        <div class="input-group">
+          <label class="input-label">Ruolo *</label>
+          <div class="select-container">
+            <ion-icon name="people-outline" class="input-icon"></ion-icon>
+            <ion-select 
+              formControlName="role" 
+              placeholder="Seleziona ruolo"
+              class="custom-select">
+              <ion-select-option value="member">Membro</ion-select-option>
+              <ion-select-option value="librarian">Bibliotecario</ion-select-option>
+            </ion-select>
+          </div>
+        </div>
+
+        <!-- Library Selection (conditional) -->
+        <div class="input-group" *ngIf="registerForm.get('role')?.value === 'librarian'">
+          <label class="input-label">Biblioteca *</label>
+          <div class="select-container">
+            <ion-icon name="library-outline" class="input-icon"></ion-icon>
+            <ion-select 
+              formControlName="library_id" 
+              placeholder="Seleziona biblioteca"
+              class="custom-select">
+              <ion-select-option 
+                *ngFor="let library of libraries" 
+                [value]="library.id">
+                {{library.name}}
+              </ion-select-option>
+            </ion-select>
+          </div>
+          <div class="error-message" *ngIf="registerForm.get('library_id')?.hasError('required') && registerForm.get('library_id')?.touched">
+            Biblioteca è richiesta per i bibliotecari
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <ion-button 
+          expand="block" 
+          type="submit" 
+          [disabled]="isLoading || registerForm.invalid"
+          class="register-button">
+          <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+          <div *ngIf="!isLoading" class="button-content">
+            <ion-icon name="person-add-outline"></ion-icon>
+            <span>Registrati</span>
+          </div>
+        </ion-button>
+
+        <!-- Login Link -->
+        <div class="login-section">
+          <span class="login-text">Hai già un account?</span>
+          <ion-button fill="clear" class="login-button" (click)="goToLogin()">
+            Accedi qui
+          </ion-button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Footer -->
+    <div class="register-footer">
+      <div class="footer-text">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+        <span>Registrazione gratuita e sicura</span>
+      </div>
+    </div>
+  </div>
+
+  <ion-toast
+    [isOpen]="showToast"
+    [message]="toastMessage"
+    duration="3000"
+    position="top"
+    color="danger"
+    (didDismiss)="onToastDismiss()">
+  </ion-toast>
+</ion-content>

@@ -1,0 +1,178 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Catalogo Libri</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="catalog-container">
+    <div *ngIf="isLoading" class="loading-section">
+      <ion-spinner></ion-spinner>
+      <p>Caricamento libri...</p>
+    </div>
+
+    <ion-grid *ngIf="!isLoading">
+      <ion-row>
+        <ion-col size="12" size-md="6" size-lg="4" *ngFor="let book of books">
+          <ion-card class="book-card">
+            <ion-card-header>
+              <div class="book-icon">
+                <ion-icon name="book-outline"></ion-icon>
+              </div>
+              <ion-card-title>{{ book.title }}</ion-card-title>
+            </ion-card-header>
+            
+            <ion-card-content>
+              <ion-list>
+                <ion-item>
+                  <ion-label>
+                    <h3>Autore</h3>
+                    <p>{{ book.author }}</p>
+                  </ion-label>
+                </ion-item>
+                
+                <ion-item>
+                  <ion-label>
+                    <h3>Categoria</h3>
+                    <p>{{ book.category }}</p>
+                  </ion-label>
+                </ion-item>
+                
+                <ion-item>
+                  <ion-label>
+                    <h3>ISBN</h3>
+                    <p>{{ book.isbn }}</p>
+                  </ion-label>
+                </ion-item>
+                
+                <ion-item *ngIf="book.total_copies">
+                  <ion-label>
+                    <h3>Copie Totali</h3>
+                    <ion-badge color="primary">{{ book.total_copies }}</ion-badge>
+                  </ion-label>
+                </ion-item>
+                
+                <ion-item *ngIf="book.available_in_libraries">
+                  <ion-label>
+                    <h3>Disponibile in</h3>
+                    <ion-chip color="secondary">
+                      <ion-icon name="library-outline"></ion-icon>
+                      <ion-text>{{ book.available_in_libraries }} biblioteche</ion-text>
+                    </ion-chip>
+                  </ion-label>
+                </ion-item>
+              </ion-list>
+              
+              <div class="action-buttons">
+                <ion-button 
+                  expand="block" 
+                  fill="solid" 
+                  color="primary"
+                  (click)="requestLoan(book)"
+                  [disabled]="!book.total_copies || book.total_copies === 0">
+                  Richiedi Prestito
+                </ion-button>
+                
+                <ion-button 
+                  expand="block" 
+                  fill="outline" 
+                  color="secondary"
+                  (click)="requestReservation(book)">
+                  Prenota
+                </ion-button>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <div *ngIf="!isLoading && books.length === 0" class="empty-state">
+      <ion-icon name="book-outline"></ion-icon>
+      <h2>Nessun libro disponibile</h2>
+      <p>Il catalogo è vuoto al momento.</p>
+    </div>
+  </div>
+
+  <!-- Loan Modal -->
+  <ion-modal [isOpen]="showLoanModal" (didDismiss)="cancelModal()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar color="primary">
+          <ion-title>Richiedi Prestito</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <div class="modal-content">
+          <h3>{{ selectedBook?.title }}</h3>
+          <p>Seleziona la biblioteca da cui prendere in prestito il libro:</p>
+          
+          <ion-item>
+            <ion-label>Biblioteca</ion-label>
+            <ion-select [(ngModel)]="selectedLibraryId" placeholder="Seleziona biblioteca">
+              <ion-select-option *ngFor="let library of libraries" [value]="library.id">
+                {{ library.name }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+          
+          <div class="modal-buttons">
+            <ion-button expand="block" color="primary" (click)="confirmLoan()">
+              Conferma Prestito
+            </ion-button>
+            <ion-button expand="block" fill="outline" (click)="cancelModal()">
+              Annulla
+            </ion-button>
+          </div>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Reservation Modal -->
+  <ion-modal [isOpen]="showReservationModal" (didDismiss)="cancelModal()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar color="secondary">
+          <ion-title>Prenota Libro</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <div class="modal-content">
+          <h3>{{ selectedBook?.title }}</h3>
+          <p>Seleziona la biblioteca per la prenotazione:</p>
+          
+          <ion-item>
+            <ion-label>Biblioteca</ion-label>
+            <ion-select [(ngModel)]="selectedLibraryId" placeholder="Seleziona biblioteca">
+              <ion-select-option *ngFor="let library of libraries" [value]="library.id">
+                {{ library.name }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+          
+          <div class="modal-buttons">
+            <ion-button expand="block" color="secondary" (click)="confirmReservation()">
+              Conferma Prenotazione
+            </ion-button>
+            <ion-button expand="block" fill="outline" (click)="cancelModal()">
+              Annulla
+            </ion-button>
+          </div>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <ion-toast
+    [isOpen]="showToast"
+    [message]="toastMessage"
+    duration="3000"
+    position="top"
+    color="success"
+    (didDismiss)="onToastDismiss()">
+  </ion-toast>
+</ion-content>

@@ -1,20 +1,109 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Blank
+<ion-header [translucent]="true" class="modern-header">
+  <ion-toolbar color="primary">
+    <ion-title class="header-title">
+      <div class="logo-section">
+        <ion-icon name="library-outline" class="logo-icon"></ion-icon>
+        <span>BibliotecaManager</span>
+      </div>
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="modern-content">
+  <!-- Hero Section -->
+  <div class="hero-section" *ngIf="currentUser">
+    <div class="hero-content">
+      <div class="user-avatar">
+        <ion-icon name="person-circle-outline"></ion-icon>
+      </div>
+      <h1 class="hero-title">Benvenuto, {{ currentUser.username }}!</h1>
+      <p class="hero-subtitle">{{ currentUser.role ? getRoleDisplayName(currentUser.role) : 'Utente' }}</p>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <ion-icon name="book-outline"></ion-icon>
+          <span>Gestione Completa</span>
+        </div>
+        <div class="stat-item">
+          <ion-icon name="time-outline"></ion-icon>
+          <span>24/7 Disponibile</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-decoration">
+      <div class="decoration-circle circle-1"></div>
+      <div class="decoration-circle circle-2"></div>
+      <div class="decoration-circle circle-3"></div>
+    </div>
+  </div>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+  <!-- Loading State -->
+  <div class="loading-section" *ngIf="!currentUser">
+    <div class="loading-spinner">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+    <p class="loading-text">Caricamento in corso...</p>
+  </div>
+
+  <!-- Main Navigation Cards -->
+  <div class="navigation-section" *ngIf="currentUser">
+    <div class="section-header">
+      <h2>Esplora le Funzionalità</h2>
+      <p>Accedi rapidamente alle sezioni principali dell'applicazione</p>
+    </div>
+    
+    <div class="cards-grid">
+      <div class="nav-card" *ngFor="let item of menuItems; let i = index" 
+           (click)="navigateTo(item.path)"
+           [style.animation-delay]="(i * 0.1) + 's'">
+        <div class="card-background" [ngClass]="'bg-' + (i % 4 + 1)"></div>
+        <div class="card-content">
+          <div class="card-icon">
+            <ion-icon [name]="item.icon"></ion-icon>
+          </div>
+          <h3 class="card-title">{{ item.title }}</h3>
+          <p class="card-description">
+            <span *ngIf="item.path === '/catalog'">Esplora il catalogo completo dei libri disponibili nelle tue biblioteche</span>
+            <span *ngIf="item.path === '/libraries'">Visualizza e gestisci tutte le biblioteche del sistema</span>
+            <span *ngIf="item.path === '/dashboard'">Monitora i tuoi prestiti, prenotazioni e statistiche personali</span>
+            <span *ngIf="item.path === '/manage-books'">Gestisci l'inventario dei libri e le operazioni amministrative</span>
+          </p>
+          <div class="card-arrow">
+            <ion-icon name="arrow-forward-outline"></ion-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions" *ngIf="currentUser">
+    <div class="section-header">
+      <h2>Azioni Rapide</h2>
+    </div>
+    <div class="actions-row">
+      <div class="action-item" (click)="logout()">
+        <div class="action-icon logout-icon">
+          <ion-icon name="log-out-outline"></ion-icon>
+        </div>
+        <span>Logout</span>
+      </div>
+      <div class="action-item" (click)="navigateTo('/catalog')">
+        <div class="action-icon search-icon">
+          <ion-icon name="search-outline"></ion-icon>
+        </div>
+        <span>Cerca Libri</span>
+      </div>
+      <div class="action-item" (click)="navigateTo('/dashboard')">
+        <div class="action-icon stats-icon">
+          <ion-icon name="analytics-outline"></ion-icon>
+        </div>
+        <span>Le Mie Statistiche</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-section">
+    <p>&copy; 2025 BibliotecaManager - Sistema di gestione bibliotecaria moderno</p>
   </div>
 </ion-content>

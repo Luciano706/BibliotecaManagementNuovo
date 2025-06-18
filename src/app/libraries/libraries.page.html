@@ -1,0 +1,60 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Biblioteche</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="libraries-container">
+    <div *ngIf="isLoading" class="loading-section">
+      <p>Caricamento biblioteche...</p>
+    </div>
+
+    <ion-grid *ngIf="!isLoading">
+      <ion-row>
+        <ion-col size="12" size-md="6" size-lg="4" *ngFor="let library of libraries">
+          <ion-card class="library-card">
+            <ion-card-header>
+              <div class="library-icon">
+                <ion-icon name="library-outline"></ion-icon>
+              </div>
+              <ion-card-title>{{ library.name }}</ion-card-title>
+            </ion-card-header>
+            
+            <ion-card-content>
+              <ion-list>
+                <ion-item>
+                  <ion-icon name="location-outline" slot="start"></ion-icon>
+                  <ion-label>
+                    <h3>Indirizzo</h3>
+                    <p>{{ library.address }}</p>
+                  </ion-label>
+                </ion-item>
+              </ion-list>
+              
+              <div class="action-buttons">
+                <ion-button 
+                  expand="block" 
+                  fill="solid" 
+                  color="primary"
+                  (click)="viewLibraryBooks(library)">
+                  <ion-icon name="book-outline" slot="start"></ion-icon>
+                  Visualizza Libri
+                </ion-button>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <div *ngIf="!isLoading && libraries.length === 0" class="empty-state">
+      <ion-icon name="library-outline"></ion-icon>
+      <h2>Nessuna biblioteca disponibile</h2>
+      <p>Non ci sono biblioteche registrate al momento.</p>
+    </div>
+  </div>
+</ion-content>

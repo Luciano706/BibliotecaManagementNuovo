@@ -1,0 +1,113 @@
+<ion-content [fullscreen]="true" class="login-content">
+  <!-- Background Elements -->
+  <div class="background-elements">
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+    <div class="floating-shape shape-3"></div>
+  </div>
+
+  <div class="login-container">
+    <!-- Logo and Brand Section -->
+    <div class="brand-section">
+      <div class="logo-container">
+        <ion-icon name="library-outline" class="brand-logo"></ion-icon>
+      </div>
+      <h1 class="brand-title">Biblioteca Digital</h1>
+      <p class="brand-subtitle">Sistema di gestione multi-sede</p>
+    </div>
+
+    <!-- Login Form Card -->
+    <div class="login-card">
+      <div class="card-header">
+        <h2>Benvenuto</h2>
+        <p>Accedi per continuare</p>
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <!-- Username Field -->
+        <div class="input-group">
+          <label class="input-label">Username</label>
+          <div class="input-container">
+            <ion-icon name="person-outline" class="input-icon"></ion-icon>
+            <ion-input 
+              type="text" 
+              formControlName="username"
+              placeholder="Inserisci il tuo username"
+              class="custom-input">
+            </ion-input>
+          </div>
+          <div class="error-message" *ngIf="loginForm.get('username')?.hasError('required') && loginForm.get('username')?.touched">
+            Username è richiesto
+          </div>
+          <div class="error-message" *ngIf="loginForm.get('username')?.hasError('minlength') && loginForm.get('username')?.touched">
+            Username deve essere di almeno 3 caratteri
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div class="input-group">
+          <label class="input-label">Password</label>
+          <div class="input-container">
+            <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
+            <ion-input 
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Inserisci la tua password"
+              class="custom-input">
+            </ion-input>
+            <ion-button 
+              fill="clear" 
+              class="password-toggle"
+              (click)="togglePasswordVisibility()">
+              <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </ion-button>
+          </div>
+          <div class="error-message" *ngIf="loginForm.get('password')?.hasError('required') && loginForm.get('password')?.touched">
+            Password è richiesta
+          </div>
+          <div class="error-message" *ngIf="loginForm.get('password')?.hasError('minlength') && loginForm.get('password')?.touched">
+            Password deve essere di almeno 6 caratteri
+          </div>
+        </div>
+
+        <!-- Login Button -->
+        <ion-button 
+          expand="block" 
+          type="submit" 
+          [disabled]="isLoading || loginForm.invalid"
+          class="login-button">
+          <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+          <div *ngIf="!isLoading" class="button-content">
+            <ion-icon name="log-in-outline"></ion-icon>
+            <span>Accedi</span>
+          </div>
+        </ion-button>
+
+        <!-- Register Link -->
+        <div class="register-section">
+          <span class="register-text">Non hai un account?</span>
+          <ion-button fill="clear" class="register-button" (click)="goToRegister()">
+            Registrati qui
+          </ion-button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Footer -->
+    <div class="login-footer">
+      <div class="footer-text">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        <span>Connessione sicura e protetta</span>
+      </div>
+    </div>
+  </div>
+
+  <ion-toast
+    [isOpen]="showToast"
+    [message]="toastMessage"
+    duration="3000"
+    position="top"
+    color="danger"
+    (didDismiss)="onToastDismiss()">
+  </ion-toast>
+</ion-content>

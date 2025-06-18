@@ -1,0 +1,149 @@
+.manage-books-container {
+  padding: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+// Segment
+ion-segment {
+  margin-bottom: 2rem;
+}
+
+// Cards
+ion-card {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+
+  ion-card-header {
+    background: var(--ion-color-primary);
+    color: white;
+
+    ion-card-title {
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+  }
+
+  ion-card-content {
+    padding: 2rem 1.5rem;
+  }
+}
+
+// Form Items
+ion-item {
+  --border-width: 0;
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  margin-bottom: 1.5rem;
+
+  ion-label {
+    color: var(--ion-color-medium);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  ion-input, ion-select {
+    --color: var(--ion-color-dark);
+    border: 1px solid var(--ion-color-light);
+    border-radius: 8px;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    margin-top: 8px;
+    min-height: 44px;
+    
+    &:focus-within {
+      border-color: var(--ion-color-primary);
+      box-shadow: 0 0 0 2px rgba(var(--ion-color-primary-rgb), 0.2);
+    }
+  }
+
+  ion-select {
+    --placeholder-color: var(--ion-color-medium);
+  }
+}
+
+// Error Messages
+.error-messages {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  
+  ion-text {
+    font-size: 0.875rem;
+    display: block;
+    margin-bottom: 4px;
+  }
+}
+
+// Submit Button
+.submit-button {
+  margin-top: 2rem;
+  height: 48px;
+  --border-radius: 24px;
+  font-weight: 600;
+  
+  ion-spinner {
+    margin-right: 8px;
+  }
+}
+
+// Conditional Sections
+div[ng-reflect-ng-if] {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Form Validation States
+ion-item {
+  &.ion-invalid.ion-touched {
+    ion-input, ion-select {
+      border-color: var(--ion-color-danger);
+      
+      &:focus-within {
+        box-shadow: 0 0 0 2px rgba(var(--ion-color-danger-rgb), 0.2);
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .manage-books-container {
+    padding: 0.5rem;
+  }
+  
+  ion-card {
+    ion-card-content {
+      padding: 1.5rem 1rem;
+    }
+  }
+  
+  ion-item {
+    margin-bottom: 1rem;
+    
+    ion-input, ion-select {
+      min-height: 40px;
+    }
+  }
+  
+  .submit-button {
+    height: 44px;
+    margin-top: 1.5rem;
+  }
+}
+
+// Success States
+ion-toast[color="success"] {
+  --background: var(--ion-color-success);
+  --color: white;
+}

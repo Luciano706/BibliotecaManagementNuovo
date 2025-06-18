@@ -1,0 +1,258 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Dashboard</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="dashboard-container">
+    <div *ngIf="isLoading" class="loading-section">
+      <p>Caricamento dati...</p>
+    </div>
+
+    <div *ngIf="!isLoading && currentUser">
+      <!-- Member Dashboard -->
+      <div *ngIf="currentUser.role === 'member'">
+        <ion-segment [(ngModel)]="selectedSegment">
+          <ion-segment-button value="loans">
+            <ion-label>Prestiti</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="reservations">
+            <ion-label>Prenotazioni</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+
+        <!-- Member Loans -->
+        <div *ngIf="selectedSegment === 'loans'">
+          <ion-card *ngFor="let loan of memberLoans" class="loan-card">
+            <ion-card-header>
+              <ion-card-title>
+                <ion-icon name="book-outline"></ion-icon>
+                {{ loan.title }}
+              </ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <ion-list>
+                <ion-item>
+                  <ion-label>
+                    <h3>Biblioteca</h3>
+                    <p>{{ loan.library_name }}</p>
+                  </ion-label>
+                </ion-item>
+                <ion-item>
+                  <ion-label>
+                    <h3>Data Prestito</h3>
+                    <p>{{ loan.loan_date | date }}</p>
+                  </ion-label>
+                </ion-item>
+                <ion-item>
+                  <ion-label>
+                    <h3>Scadenza</h3>
+                    <p>{{ loan.due_date | date }}</p>
+                  </ion-label>
+                </ion-item>
+                <ion-item>
+                  <ion-label>
+                    <h3>Stato</h3>
+                    <ion-badge [color]="getStatusColor(loan.status)">
+                      {{ getStatusText(loan.status) }}
+                    </ion-badge>
+                  </ion-label>
+                </ion-item>
+              </ion-list>
+              
+              <div class="action-buttons" *ngIf="loan.status === 'approved' && !loan.return_date">
+                <ion-button 
+                  expand="block" 
+                  color="success"
+                  (click)="returnBook(loan.id)">
+                  <ion-icon name="return-down-back" slot="start"></ion-icon>
+                  Restituisci
+                </ion-button>
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+          <div *ngIf="memberLoans.length === 0" class="empty-state">
+            <ion-icon name="book-outline"></ion-icon>
+            <h2>Nessun prestito</h2>
+            <p>Non hai ancora effettuato prestiti.</p>
+          </div>
+        </div>
+
+        <!-- Member Reservations -->
+        <div *ngIf="selectedSegment === 'reservations'">
+          <ion-card *ngFor="let reservation of memberReservations" class="reservation-card">
+            <ion-card-header>
+              <ion-card-title>
+                <ion-icon name="time-outline"></ion-icon>
+                {{ reservation.title }}
+              </ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <ion-list>
+                <ion-item>
+                  <ion-label>
+                    <h3>Biblioteca</h3>
+                    <p>{{ reservation.library_name }}</p>
+                  </ion-label>
+                </ion-item>
+                <ion-item>
+                  <ion-label>
+                    <h3>Data Prenotazione</h3>
+                    <p>{{ reservation.reservation_date | date }}</p>
+                  </ion-label>
+                </ion-item>
+                <ion-item>
+                  <ion-label>
+                    <h3>Stato</h3>
+                    <ion-badge [color]="getStatusColor(reservation.status)">
+                      {{ getStatusText(reservation.status) }}
+                    </ion-badge>
+                  </ion-label>
+                </ion-item>
+              </ion-list>
+            </ion-card-content>
+          </ion-card>
+
+          <div *ngIf="memberReservations.length === 0" class="empty-state">
+            <ion-icon name="time-outline"></ion-icon>
+            <h2>Nessuna prenotazione</h2>
+            <p>Non hai ancora effettuato prenotazioni.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Librarian/Admin Dashboard -->
+      <div *ngIf="currentUser.role === 'librarian' || currentUser.role === 'admin'">
+        <ion-segment [(ngModel)]="selectedSegment">
+          <ion-segment-button value="loans">
+            <ion-label>Prestiti in Attesa</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="reservations">
+            <ion-label>Prenotazioni in Attesa</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+
+        <!-- Pending Loans -->
+        <div *ngIf="selectedSegment === 'loans'">
+          <ion-card *ngFor="let loan of pendingLoans" class="pending-card">
+            <ion-card-header>
+              <ion-card-title>
+                <ion-icon name="hourglass"></ion-icon>
+                {{ loan.title }}
+              </ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <ion-list>
+                <ion-item>
+                  <ion-label>
+                    <h3>Utente</h3>
+                    <p>{{ loan.username }}</p>
+                  </ion-label>
+                </ion-item>
+                <ion-item>
+                  <ion-label>
+                    <h3>Biblioteca</h3>
+                    <p>{{ loan.library_name }}</p>
+                  </ion-label>
+                </ion-item>
+                <ion-item>
+                  <ion-label>
+                    <h3>Data Richiesta</h3>
+                    <p>{{ loan.loan_date | date }}</p>
+                  </ion-label>
+                </ion-item>
+              </ion-list>
+              
+              <div class="action-buttons">
+                <ion-button 
+                  expand="block" 
+                  color="success"
+                  (click)="approveLoan(loan.id)">
+                  <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+                  Approva
+                </ion-button>
+                <ion-button 
+                  expand="block" 
+                  color="danger"
+                  fill="outline"
+                  (click)="rejectLoan(loan.id)">
+                  <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+                  Rifiuta
+                </ion-button>
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+          <div *ngIf="pendingLoans.length === 0" class="empty-state">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            <h2>Nessun prestito in attesa</h2>
+            <p>Tutte le richieste sono state processate.</p>
+          </div>
+        </div>
+
+        <!-- Pending Reservations -->
+        <div *ngIf="selectedSegment === 'reservations'">
+          <ion-card *ngFor="let reservation of pendingReservations" class="pending-card">
+            <ion-card-header>
+              <ion-card-title>
+                <ion-icon name="hourglass"></ion-icon>
+                {{ reservation.title }}
+              </ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <ion-list>
+                <ion-item>
+                  <ion-label>
+                    <h3>Utente</h3>
+                    <p>{{ reservation.username }}</p>
+                  </ion-label>
+                </ion-item>
+                <ion-item>
+                  <ion-label>
+                    <h3>Biblioteca</h3>
+                    <p>{{ reservation.library_name }}</p>
+                  </ion-label>
+                </ion-item>
+                <ion-item>
+                  <ion-label>
+                    <h3>Data Richiesta</h3>
+                    <p>{{ reservation.reservation_date | date }}</p>
+                  </ion-label>
+                </ion-item>
+              </ion-list>
+              
+              <div class="action-buttons">
+                <ion-button 
+                  expand="block" 
+                  color="success"
+                  (click)="approveReservation(reservation.id)">
+                  <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+                  Approva
+                </ion-button>
+                <ion-button 
+                  expand="block" 
+                  color="danger"
+                  fill="outline"
+                  (click)="rejectReservation(reservation.id)">
+                  <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+                  Rifiuta
+                </ion-button>
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+          <div *ngIf="pendingReservations.length === 0" class="empty-state">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            <h2>Nessuna prenotazione in attesa</h2>
+            <p>Tutte le richieste sono state processate.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
