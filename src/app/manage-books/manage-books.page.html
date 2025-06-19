@@ -117,18 +117,70 @@
                 <ion-select-option value="existing">Aggiungi libro esistente</ion-select-option>
                 <ion-select-option value="new">Crea nuovo libro</ion-select-option>
               </ion-select>
-            </ion-item>
-
-            <!-- Existing Book Fields -->
+            </ion-item>            <!-- Existing Book Fields -->
             <div *ngIf="addToLibraryForm.get('action')?.value === 'existing'">
               <ion-item>
-                <ion-label position="stacked">ID Libro *</ion-label>
-                <ion-input 
-                  type="number" 
-                  formControlName="book_id"
-                  placeholder="Inserisci l'ID del libro">
-                </ion-input>
+                <ion-label position="stacked">Seleziona Libro *</ion-label>
+                <ion-select 
+                  formControlName="book_id" 
+                  placeholder="Scegli un libro dal catalogo">
+                  <ion-select-option 
+                    *ngFor="let book of books" 
+                    [value]="book.id">
+                    {{ book.title }} - {{ book.author }}
+                  </ion-select-option>
+                </ion-select>
               </ion-item>
+              
+              <!-- Selected Book Details -->
+              <div *ngIf="getSelectedBookDetails()" class="selected-book-details">
+                <ion-card>
+                  <ion-card-header>
+                    <ion-card-title>Dettagli Libro Selezionato</ion-card-title>
+                  </ion-card-header>
+                  <ion-card-content>
+                    <ion-list>
+                      <ion-item>
+                        <ion-label>
+                          <h3>Titolo</h3>
+                          <p>{{ getSelectedBookDetails().title }}</p>
+                        </ion-label>
+                      </ion-item>
+                      <ion-item>
+                        <ion-label>
+                          <h3>Autore</h3>
+                          <p>{{ getSelectedBookDetails().author }}</p>
+                        </ion-label>
+                      </ion-item>
+                      <ion-item>
+                        <ion-label>
+                          <h3>ISBN</h3>
+                          <p>{{ getSelectedBookDetails().isbn }}</p>
+                        </ion-label>
+                      </ion-item>
+                      <ion-item>
+                        <ion-label>
+                          <h3>Categoria</h3>
+                          <p>{{ getSelectedBookDetails().category }}</p>
+                        </ion-label>
+                      </ion-item>
+                    </ion-list>
+                  </ion-card-content>
+                </ion-card>
+              </div>
+              
+              <!-- Loading indicator for books -->
+              <div *ngIf="isLoadingBooks" class="loading-books">
+                <ion-spinner name="crescent"></ion-spinner>
+                <ion-text>Caricamento libri...</ion-text>
+              </div>
+              
+              <!-- No books message -->
+              <div *ngIf="!isLoadingBooks && books.length === 0" class="no-books-message">
+                <ion-text color="medium">
+                  Nessun libro disponibile nel catalogo. Aggiungi prima un libro al catalogo.
+                </ion-text>
+              </div>
             </div>
 
             <!-- New Book Fields -->
@@ -183,9 +235,8 @@
             <div class="error-messages" *ngIf="addToLibraryForm.invalid && addToLibraryForm.touched">
               <ion-text color="danger" *ngIf="addToLibraryForm.get('library_id')?.hasError('required')">
                 Biblioteca è richiesta
-              </ion-text>
-              <ion-text color="danger" *ngIf="addToLibraryForm.get('book_id')?.hasError('required')">
-                ID libro è richiesto
+              </ion-text>              <ion-text color="danger" *ngIf="addToLibraryForm.get('book_id')?.hasError('required')">
+                Seleziona un libro dal catalogo
               </ion-text>
               <ion-text color="danger" *ngIf="addToLibraryForm.get('title')?.hasError('required')">
                 Titolo è richiesto

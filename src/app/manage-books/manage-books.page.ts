@@ -32,11 +32,13 @@ export class ManageBooksPage implements OnInit {
   currentUser: User | null = null;
   selectedSegment = 'add-book';
   libraries: Library[] = [];
+  books: any[] = []; // Lista di tutti i libri del catalogo
   
   addBookForm: FormGroup;
   addToLibraryForm: FormGroup;
   
   isSubmitting = false;
+  isLoadingBooks = false;
   toastMessage = '';
   showToast = false;
 
@@ -93,13 +95,13 @@ export class ManageBooksPage implements OnInit {
       categoryControl?.updateValueAndValidity();
     });
   }
-
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
     });
     
     this.loadLibraries();
+    this.loadBooks();
   }
 
   loadLibraries() {
@@ -115,6 +117,22 @@ export class ManageBooksPage implements OnInit {
     });
   }
 
+  loadBooks() {
+    this.isLoadingBooks = true;
+    this.libraryService.getAllBooks().subscribe({
+      next: (response) => {
+        this.isLoadingBooks = false;
+        if (response.status === 'success' && response.data) {
+          this.books = response.data;
+        }
+      },
+      error: (error) => {
+        this.isLoadingBooks = false;
+        console.error('Error loading books:', error);
+        this.showToastMessage('Errore nel caricamento dei libri del catalogo');
+      }
+    });
+  }
   onAddBook() {
     if (this.addBookForm.valid) {
       this.isSubmitting = true;
@@ -124,6 +142,8 @@ export class ManageBooksPage implements OnInit {
           this.isSubmitting = false;
           this.showToastMessage('Libro aggiunto al catalogo con successo!', 'success');
           this.addBookForm.reset();
+          // Ricarica la lista dei libri per aggiornare il dropdown
+          this.loadBooks();
         },
         error: (error) => {
           this.isSubmitting = false;
@@ -184,6 +204,15 @@ export class ManageBooksPage implements OnInit {
         });
       }
     }
+  }
+
+  // Get selected book details for display
+  getSelectedBookDetails(): any {
+    const selectedBookId = this.addToLibraryForm.get('book_id')?.value;
+    if (selectedBookId) {
+      return this.books.find(book => book.id === selectedBookId);
+    }
+    return null;
   }
 
   private showToastMessage(message: string, color: string = 'danger') {

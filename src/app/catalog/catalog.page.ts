@@ -103,7 +103,6 @@ export class CatalogPage implements OnInit {
       }
     });
   }
-
   loadBookLibraryCopies() {
     // For each book, get available copies in each library
     this.books.forEach(book => {
@@ -115,26 +114,25 @@ export class CatalogPage implements OnInit {
           next: (response: any) => {
             if (response.status === 'success' && response.data) {
               const libraryBook = response.data.find((lb: LibraryBook) => lb.id === book.id);
-              if (libraryBook) {
-                this.bookLibraryCopies[book.id][library.id] = libraryBook.copies || 0;
-              }
+              // Always set the copies count, even if it's 0 or the book doesn't exist
+              this.bookLibraryCopies[book.id][library.id] = libraryBook ? (libraryBook.copies || 0) : 0;
+            } else {
+              // If no data or error, set to 0 copies
+              this.bookLibraryCopies[book.id][library.id] = 0;
             }
           },
           error: (error: any) => {
             console.error(`Error loading books for library ${library.id}:`, error);
+            // Set to 0 copies on error
+            this.bookLibraryCopies[book.id][library.id] = 0;
           }
         });
       });
     });
-  }
-
-  getAvailableLibrariesForBook(bookId: number): Library[] {
-    if (!this.bookLibraryCopies[bookId]) {
-      return [];
-    }
-    return this.libraries.filter(library => 
-      this.bookLibraryCopies[bookId][library.id] !== undefined
-    );
+  }  getAvailableLibrariesForBook(bookId: number): Library[] {
+    // Return all libraries - users can borrow from libraries with copies > 0
+    // and reserve from libraries with copies = 0 (or that don't have the book yet)
+    return this.libraries;
   }
 
   getAvailableCopiesForBookInLibrary(bookId: number, libraryId: number): number {

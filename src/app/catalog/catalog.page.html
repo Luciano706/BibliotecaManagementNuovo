@@ -77,10 +77,8 @@
                 <span class="value">{{ book.isbn }}</span>
               </div>
             </div>
-          </div>
-
-          <!-- Library Selection Section -->
-          <div class="library-selection" *ngIf="getAvailableLibrariesForBook(book.id).length > 0">
+          </div>          <!-- Library Selection Section -->
+          <div class="library-selection" *ngIf="libraries.length > 0">
             <div class="selection-header">
               <ion-icon name="location-outline"></ion-icon>
               <span class="selection-label">Seleziona Biblioteca</span>
@@ -108,9 +106,8 @@
               </div>
             </div>
           </div>
-              
-          <!-- Action Buttons -->
-          <div class="card-actions" *ngIf="getAvailableLibrariesForBook(book.id).length > 0">
+                <!-- Action Buttons -->
+          <div class="card-actions" *ngIf="libraries.length > 0">
             <ion-button 
               expand="block" 
               class="modern-button primary-btn"
@@ -131,12 +128,10 @@
               <ion-icon name="bookmark-outline" slot="start" *ngIf="!isProcessingAction[book.id]"></ion-icon>
               {{ isProcessingAction[book.id] ? 'Elaborazione...' : 'Prenota' }}
             </ion-button>
-          </div>
-
-          <!-- No Libraries Available -->
-          <div class="no-libraries-message" *ngIf="getAvailableLibrariesForBook(book.id).length === 0">
+          </div>          <!-- No Libraries Available -->
+          <div class="no-libraries-message" *ngIf="libraries.length === 0">
             <ion-icon name="alert-circle-outline"></ion-icon>
-            <span>Libro non disponibile in nessuna biblioteca</span>
+            <span>Nessuna biblioteca disponibile nel sistema</span>
           </div>
         </div>
       </div>    </div>

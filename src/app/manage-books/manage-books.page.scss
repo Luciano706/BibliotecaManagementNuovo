@@ -60,6 +60,10 @@ ion-item {
 
   ion-select {
     --placeholder-color: var(--ion-color-medium);
+    
+    &.select-expanded {
+      --border-color: var(--ion-color-primary);
+    }
   }
 }
 
@@ -84,6 +88,36 @@ ion-item {
   
   ion-spinner {
     margin-right: 8px;
+  }
+}
+
+// Loading books indicator
+.loading-books {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  color: var(--ion-color-medium);
+  font-size: 0.9rem;
+
+  ion-spinner {
+    --color: var(--ion-color-primary);
+    transform: scale(0.8);
+  }
+}
+
+// No books message
+.no-books-message {
+  padding: 1rem;
+  text-align: center;
+  background: var(--ion-color-light);
+  border-radius: 8px;
+  margin: 1rem 0;
+
+  ion-text {
+    font-size: 0.9rem;
+    font-style: italic;
   }
 }
 
@@ -146,4 +180,55 @@ ion-item {
 ion-toast[color="success"] {
   --background: var(--ion-color-success);
   --color: white;
+}
+
+// Selected book details
+.selected-book-details {
+  margin: 1rem 0;
+  
+  ion-card {
+    margin: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    
+    ion-card-header {
+      padding-bottom: 0.5rem;
+      
+      ion-card-title {
+        font-size: 1rem;
+        color: var(--ion-color-primary);
+      }
+    }
+    
+    ion-card-content {
+      padding-top: 0;
+      
+      ion-list {
+        background: transparent;
+        
+        ion-item {
+          --background: transparent;
+          --border-width: 0;
+          --inner-padding-end: 0;
+          margin-bottom: 0.5rem;
+          
+          ion-label {
+            h3 {
+              color: var(--ion-color-medium);
+              font-size: 0.8rem;
+              font-weight: 600;
+              margin: 0 0 0.25rem 0;
+              text-transform: uppercase;
+            }
+            
+            p {
+              color: var(--ion-color-dark);
+              font-size: 0.95rem;
+              margin: 0;
+              font-weight: 500;
+            }
+          }
+        }
+      }
+    }
+  }
 }
