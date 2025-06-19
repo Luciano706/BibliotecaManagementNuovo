@@ -3,10 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { 
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, 
-  IonMenuButton, IonCard, IonCardHeader, IonCardTitle, 
-  IonCardContent, IonGrid, IonRow, IonCol, IonButton, IonIcon,
-  IonItem, IonLabel, IonBadge, IonList, IonChip, IonText,
-  IonSpinner, IonModal, IonSelect, IonSelectOption, IonToast
+  IonMenuButton, IonButton, IonIcon,
+  IonItem, IonLabel, IonBadge, 
+  IonSpinner, IonSelect, IonSelectOption, IonToast
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
@@ -17,40 +16,41 @@ import {
   barcodeOutline,
   copyOutline,
   downloadOutline,
-  bookmarkOutline
+  bookmarkOutline,
+  chevronDownOutline,
+  alertCircleOutline
 } from 'ionicons/icons';
 import { LibraryService } from '../services/library.service';
 import { LoanService } from '../services/loan.service';
-import { Book, Library } from '../models/library.model';
+import { Book, Library, LibraryBook } from '../models/library.model';
 import { AuthService } from '../services/auth.service';
+import { CreateLoanRequest, CreateReservationRequest } from '../models/loan.model';
 
 @Component({
   selector: 'app-catalog',
   templateUrl: './catalog.page.html',
-  styleUrls: ['./catalog.page.scss'],  imports: [
+  styleUrls: ['./catalog.page.scss'],
+  imports: [
     CommonModule,
     FormsModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
     IonMenuButton, IonButton, IonIcon,
-    IonItem, IonLabel, 
-    IonSpinner, IonModal, IonSelect, IonSelectOption, IonToast
+    IonItem, IonLabel, IonBadge,
+    IonSpinner, IonSelect, IonSelectOption, IonToast
   ]
 })
 export class CatalogPage implements OnInit {
   books: Book[] = [];
   libraries: Library[] = [];
+  bookLibraryCopies: { [bookId: number]: { [libraryId: number]: number } } = {};
+  selectedLibraries: { [bookId: number]: number } = {};
   isLoading = true;
-  
-  // Modal properties
-  showLoanModal = false;
-  showReservationModal = false;
-  selectedBook: Book | null = null;
-  selectedLibraryId: number | null = null;
+  isProcessingAction: { [bookId: number]: boolean } = {};
   
   // Toast properties
   showToast = false;
   toastMessage = '';
-
+  toastColor = 'success';
   constructor(
     private libraryService: LibraryService,
     private loanService: LoanService,
@@ -64,10 +64,11 @@ export class CatalogPage implements OnInit {
       barcodeOutline,
       copyOutline,
       downloadOutline,
-      bookmarkOutline
+      bookmarkOutline,
+      chevronDownOutline,
+      alertCircleOutline
     });
-  }
-  ngOnInit() {
+  }  ngOnInit() {
     this.loadBooks();
     this.loadLibraries();
   }
@@ -77,12 +78,14 @@ export class CatalogPage implements OnInit {
       next: (response) => {
         if (response.status === 'success' && response.data) {
           this.books = response.data;
+          this.loadBookLibraryCopies();
         }
         this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading books:', error);
         this.isLoading = false;
+        this.showToastMessage('Errore nel caricamento dei libri', 'danger');
       }
     });
   }
@@ -96,109 +99,147 @@ export class CatalogPage implements OnInit {
       },
       error: (error) => {
         console.error('Error loading libraries:', error);
+        this.showToastMessage('Errore nel caricamento delle biblioteche', 'danger');
       }
     });
   }
 
-  requestLoan(book: Book) {
-    this.selectedBook = book;
-    this.selectedLibraryId = null;
-    this.showLoanModal = true;
+  loadBookLibraryCopies() {
+    // For each book, get available copies in each library
+    this.books.forEach(book => {
+      this.bookLibraryCopies[book.id] = {};
+      
+      // For each library, check if it has this book
+      this.libraries.forEach(library => {
+        this.libraryService.getLibraryBooks(library.id).subscribe({
+          next: (response: any) => {
+            if (response.status === 'success' && response.data) {
+              const libraryBook = response.data.find((lb: LibraryBook) => lb.id === book.id);
+              if (libraryBook) {
+                this.bookLibraryCopies[book.id][library.id] = libraryBook.copies || 0;
+              }
+            }
+          },
+          error: (error: any) => {
+            console.error(`Error loading books for library ${library.id}:`, error);
+          }
+        });
+      });
+    });
   }
 
-  requestReservation(book: Book) {
-    this.selectedBook = book;
-    this.selectedLibraryId = null;
-    this.showReservationModal = true;
+  getAvailableLibrariesForBook(bookId: number): Library[] {
+    if (!this.bookLibraryCopies[bookId]) {
+      return [];
+    }
+    return this.libraries.filter(library => 
+      this.bookLibraryCopies[bookId][library.id] !== undefined
+    );
   }
 
-  confirmLoan() {
-    if (!this.selectedBook || !this.selectedLibraryId) {
-      this.showToastMessage('Seleziona una biblioteca');
+  getAvailableCopiesForBookInLibrary(bookId: number, libraryId: number): number {
+    return this.bookLibraryCopies[bookId]?.[libraryId] || 0;
+  }
+
+  onLibrarySelectionChange(bookId: number, libraryId: number) {
+    this.selectedLibraries[bookId] = libraryId;
+  }
+
+  canRequestLoan(bookId: number): boolean {
+    const selectedLibraryId = this.selectedLibraries[bookId];
+    if (!selectedLibraryId) return false;
+    
+    const availableCopies = this.getAvailableCopiesForBookInLibrary(bookId, selectedLibraryId);
+    return availableCopies > 0;
+  }
+
+  canRequestReservation(bookId: number): boolean {
+    const selectedLibraryId = this.selectedLibraries[bookId];
+    if (!selectedLibraryId) return false;
+    
+    const availableCopies = this.getAvailableCopiesForBookInLibrary(bookId, selectedLibraryId);
+    return availableCopies === 0;
+  }
+
+  async requestLoan(book: Book) {
+    const selectedLibraryId = this.selectedLibraries[book.id];
+    if (!selectedLibraryId) {
+      this.showToastMessage('Seleziona una biblioteca', 'warning');
       return;
     }
 
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser) {
-      this.showToastMessage('Devi essere loggato per richiedere un prestito');
+      this.showToastMessage('Devi essere loggato per richiedere un prestito', 'warning');
       return;
     }
 
-    const loanData = {
+    this.isProcessingAction[book.id] = true;
+
+    const loanData: CreateLoanRequest = {
       user_id: currentUser.id,
-      library_id: this.selectedLibraryId,
-      book_id: this.selectedBook.id
+      library_id: selectedLibraryId,
+      book_id: book.id
     };
 
     this.loanService.createLoan(loanData).subscribe({
       next: (response) => {
         if (response.status === 'success') {
-          this.showToastMessage('Prestito richiesto con successo!');
-          this.cancelModal();
+          this.showToastMessage('Prestito richiesto con successo!', 'success');
+          // Update local copies count
+          if (this.bookLibraryCopies[book.id] && this.bookLibraryCopies[book.id][selectedLibraryId] > 0) {
+            this.bookLibraryCopies[book.id][selectedLibraryId]--;
+          }
         }
+        this.isProcessingAction[book.id] = false;
       },
       error: (error) => {
         console.error('Error creating loan:', error);
-        this.showToastMessage('Errore nella richiesta di prestito');
+        this.showToastMessage('Errore nella richiesta di prestito', 'danger');
+        this.isProcessingAction[book.id] = false;
       }
     });
   }
 
-  confirmReservation() {
-    if (!this.selectedBook || !this.selectedLibraryId) {
-      this.showToastMessage('Seleziona una biblioteca');
+  async requestReservation(book: Book) {
+    const selectedLibraryId = this.selectedLibraries[book.id];
+    if (!selectedLibraryId) {
+      this.showToastMessage('Seleziona una biblioteca', 'warning');
       return;
     }
 
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser) {
-      this.showToastMessage('Devi essere loggato per prenotare un libro');
+      this.showToastMessage('Devi essere loggato per prenotare un libro', 'warning');
       return;
     }
 
-    const reservationData = {
+    this.isProcessingAction[book.id] = true;
+
+    const reservationData: CreateReservationRequest = {
       user_id: currentUser.id,
-      library_id: this.selectedLibraryId,
-      book_id: this.selectedBook.id
+      library_id: selectedLibraryId,
+      book_id: book.id
     };
 
     this.loanService.createReservation(reservationData).subscribe({
       next: (response) => {
         if (response.status === 'success') {
-          this.showToastMessage('Prenotazione effettuata con successo!');
-          this.cancelModal();
+          this.showToastMessage('Prenotazione effettuata con successo!', 'success');
         }
+        this.isProcessingAction[book.id] = false;
       },
       error: (error) => {
         console.error('Error creating reservation:', error);
-        this.showToastMessage('Errore nella prenotazione');
+        this.showToastMessage('Errore nella prenotazione', 'danger');
+        this.isProcessingAction[book.id] = false;
       }
     });
   }
 
-  cancelModal() {
-    this.showLoanModal = false;
-    this.showReservationModal = false;
-    this.selectedBook = null;
-    this.selectedLibraryId = null;
-  }
-
-  getAvailabilityClass(book: Book): string {
-    if (!book.total_copies || book.total_copies === 0) {
-      return 'unavailable';
-    }
-    return 'available';
-  }
-
-  getAvailabilityText(book: Book): string {
-    if (!book.total_copies || book.total_copies === 0) {
-      return 'Non Disponibile';
-    }
-    return 'Disponibile';
-  }
-
-  private showToastMessage(message: string) {
+  private showToastMessage(message: string, color: string = 'success') {
     this.toastMessage = message;
+    this.toastColor = color;
     this.showToast = true;
   }
 

@@ -32,7 +32,6 @@
     </div>
     <p class="loading-text">Caricamento catalogo...</p>
   </div>
-
   <!-- Books Grid -->
   <div class="catalog-container" *ngIf="!isLoading">
     <div class="books-grid">
@@ -41,8 +40,13 @@
           <div class="book-icon">
             <ion-icon name="book-outline"></ion-icon>
           </div>
-          <div class="availability-badge" [ngClass]="getAvailabilityClass(book)">
-            {{ getAvailabilityText(book) }}
+          <div class="availability-indicator">
+            <ion-badge color="primary" *ngIf="getAvailableLibrariesForBook(book.id).length > 0">
+              {{ getAvailableLibrariesForBook(book.id).length }} biblioteche
+            </ion-badge>
+            <ion-badge color="medium" *ngIf="getAvailableLibrariesForBook(book.id).length === 0">
+              Non disponibile
+            </ion-badge>
           </div>
         </div>
         
@@ -71,46 +75,71 @@
               <div>
                 <span class="label">ISBN</span>
                 <span class="value">{{ book.isbn }}</span>
-              </div>            
-            <div class="info-item" *ngIf="book.total_copies">
-              <ion-icon name="copy-outline"></ion-icon>
-              <div>
-                <span class="label">Copie Totali</span>
-                <span class="value">{{ book.total_copies }}</span>
               </div>
             </div>
-            
-            <div class="info-item" *ngIf="book.available_in_libraries">
+          </div>
+
+          <!-- Library Selection Section -->
+          <div class="library-selection" *ngIf="getAvailableLibrariesForBook(book.id).length > 0">
+            <div class="selection-header">
               <ion-icon name="location-outline"></ion-icon>
-              <div>
-                <span class="label">Disponibile in</span>
-                <span class="value">{{ book.available_in_libraries }} biblioteche</span>
+              <span class="selection-label">Seleziona Biblioteca</span>
+            </div>
+            
+            <ion-item class="library-select-item">
+              <ion-select 
+                [(ngModel)]="selectedLibraries[book.id]"
+                (ionChange)="onLibrarySelectionChange(book.id, $event.detail.value)"
+                placeholder="Scegli biblioteca..."
+                interface="popover">
+                <ion-select-option 
+                  *ngFor="let library of getAvailableLibrariesForBook(book.id)" 
+                  [value]="library.id">
+                  {{ library.name }} ({{ getAvailableCopiesForBookInLibrary(book.id, library.id) }} copie)
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <!-- Copies info for selected library -->
+            <div class="copies-info-card" *ngIf="selectedLibraries[book.id]">
+              <div class="copies-details">
+                <ion-icon name="copy-outline"></ion-icon>
+                <span>{{ getAvailableCopiesForBookInLibrary(book.id, selectedLibraries[book.id]) }} copie disponibili</span>
               </div>
             </div>
           </div>
               
-          <div class="card-actions">
+          <!-- Action Buttons -->
+          <div class="card-actions" *ngIf="getAvailableLibrariesForBook(book.id).length > 0">
             <ion-button 
               expand="block" 
               class="modern-button primary-btn"
-              (click)="requestLoan(book)"
-              [disabled]="!book.total_copies || book.total_copies === 0">
-              <ion-icon name="download-outline" slot="start"></ion-icon>
-              Richiedi Prestito
+              [disabled]="!canRequestLoan(book.id) || isProcessingAction[book.id]"
+              (click)="requestLoan(book)">
+              <ion-spinner name="crescent" *ngIf="isProcessingAction[book.id]"></ion-spinner>
+              <ion-icon name="download-outline" slot="start" *ngIf="!isProcessingAction[book.id]"></ion-icon>
+              {{ isProcessingAction[book.id] ? 'Elaborazione...' : 'Prendi in Prestito' }}
             </ion-button>
             
             <ion-button 
               expand="block" 
               class="modern-button secondary-btn"
               fill="outline"
+              [disabled]="!canRequestReservation(book.id) || isProcessingAction[book.id]"
               (click)="requestReservation(book)">
-              <ion-icon name="bookmark-outline" slot="start"></ion-icon>
-              Prenota Libro
+              <ion-spinner name="crescent" *ngIf="isProcessingAction[book.id]"></ion-spinner>
+              <ion-icon name="bookmark-outline" slot="start" *ngIf="!isProcessingAction[book.id]"></ion-icon>
+              {{ isProcessingAction[book.id] ? 'Elaborazione...' : 'Prenota' }}
             </ion-button>
           </div>
+
+          <!-- No Libraries Available -->
+          <div class="no-libraries-message" *ngIf="getAvailableLibrariesForBook(book.id).length === 0">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            <span>Libro non disponibile in nessuna biblioteca</span>
+          </div>
         </div>
-      </div>
-    </div>
+      </div>    </div>
 
     <!-- Empty State -->
     <div class="empty-state" *ngIf="!isLoading && books.length === 0">
@@ -122,90 +151,14 @@
     </div>
   </div>
 
-  <!-- Loan Modal -->
-  <ion-modal [isOpen]="showLoanModal" (didDismiss)="cancelModal()" class="modern-modal">
-    <ng-template>
-      <ion-header class="modern-header">
-        <ion-toolbar>
-          <ion-title>Richiedi Prestito</ion-title>
-        </ion-toolbar>
-      </ion-header>
-      <ion-content class="modern-content">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h3>{{ selectedBook?.title }}</h3>
-            <p>Seleziona la biblioteca da cui prendere in prestito il libro</p>
-          </div>
-          
-          <div class="modal-form">
-            <ion-item class="modern-item">
-              <ion-label>Biblioteca</ion-label>
-              <ion-select [(ngModel)]="selectedLibraryId" placeholder="Seleziona biblioteca">
-                <ion-select-option *ngFor="let library of libraries" [value]="library.id">
-                  {{ library.name }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-          </div>
-          
-          <div class="modal-actions">
-            <ion-button expand="block" class="modern-button primary-btn" (click)="confirmLoan()">
-              Conferma Prestito
-            </ion-button>
-            <ion-button expand="block" class="modern-button secondary-btn" fill="outline" (click)="cancelModal()">
-              Annulla
-            </ion-button>
-          </div>
-        </div>
-      </ion-content>
-    </ng-template>
-  </ion-modal>
-
-  <!-- Reservation Modal -->
-  <ion-modal [isOpen]="showReservationModal" (didDismiss)="cancelModal()" class="modern-modal">
-    <ng-template>
-      <ion-header class="modern-header">
-        <ion-toolbar>
-          <ion-title>Prenota Libro</ion-title>
-        </ion-toolbar>
-      </ion-header>
-      <ion-content class="modern-content">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h3>{{ selectedBook?.title }}</h3>
-            <p>Seleziona la biblioteca per la prenotazione</p>
-          </div>
-          
-          <div class="modal-form">
-            <ion-item class="modern-item">
-              <ion-label>Biblioteca</ion-label>
-              <ion-select [(ngModel)]="selectedLibraryId" placeholder="Seleziona biblioteca">
-                <ion-select-option *ngFor="let library of libraries" [value]="library.id">
-                  {{ library.name }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-          </div>
-          
-          <div class="modal-actions">
-            <ion-button expand="block" class="modern-button primary-btn" (click)="confirmReservation()">
-              Conferma Prenotazione
-            </ion-button>
-            <ion-button expand="block" class="modern-button secondary-btn" fill="outline" (click)="cancelModal()">
-              Annulla
-            </ion-button>
-          </div>
-        </div>
-      </ion-content>
-    </ng-template>
-  </ion-modal>
-
   <ion-toast
     [isOpen]="showToast"
     [message]="toastMessage"
     duration="3000"
     position="top"
-    color="success"
+    [color]="toastColor"
     (didDismiss)="onToastDismiss()">
   </ion-toast>
+
+</ion-content>
 
