@@ -9,7 +9,16 @@ import {
   IonSpinner, IonModal, IonSelect, IonSelectOption, IonToast
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { bookOutline, locationOutline, libraryOutline } from 'ionicons/icons';
+import { 
+  bookOutline, 
+  locationOutline, 
+  libraryOutline,
+  personOutline,
+  barcodeOutline,
+  copyOutline,
+  downloadOutline,
+  bookmarkOutline
+} from 'ionicons/icons';
 import { LibraryService } from '../services/library.service';
 import { LoanService } from '../services/loan.service';
 import { Book, Library } from '../models/library.model';
@@ -18,14 +27,12 @@ import { AuthService } from '../services/auth.service';
 @Component({
   selector: 'app-catalog',
   templateUrl: './catalog.page.html',
-  styleUrls: ['./catalog.page.scss'],
-  imports: [
+  styleUrls: ['./catalog.page.scss'],  imports: [
     CommonModule,
     FormsModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
-    IonMenuButton, IonCard, IonCardHeader, IonCardTitle,
-    IonCardContent, IonGrid, IonRow, IonCol, IonButton, IonIcon,
-    IonItem, IonLabel, IonBadge, IonList, IonChip, IonText,
+    IonMenuButton, IonButton, IonIcon,
+    IonItem, IonLabel, 
     IonSpinner, IonModal, IonSelect, IonSelectOption, IonToast
   ]
 })
@@ -49,7 +56,16 @@ export class CatalogPage implements OnInit {
     private loanService: LoanService,
     private authService: AuthService
   ) {
-    addIcons({ bookOutline, locationOutline, libraryOutline });
+    addIcons({ 
+      bookOutline, 
+      locationOutline, 
+      libraryOutline,
+      personOutline,
+      barcodeOutline,
+      copyOutline,
+      downloadOutline,
+      bookmarkOutline
+    });
   }
   ngOnInit() {
     this.loadBooks();
@@ -165,6 +181,20 @@ export class CatalogPage implements OnInit {
     this.showReservationModal = false;
     this.selectedBook = null;
     this.selectedLibraryId = null;
+  }
+
+  getAvailabilityClass(book: Book): string {
+    if (!book.total_copies || book.total_copies === 0) {
+      return 'unavailable';
+    }
+    return 'available';
+  }
+
+  getAvailabilityText(book: Book): string {
+    if (!book.total_copies || book.total_copies === 0) {
+      return 'Non Disponibile';
+    }
+    return 'Disponibile';
   }
 
   private showToastMessage(message: string) {

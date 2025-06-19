@@ -5,7 +5,8 @@ import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, 
   IonMenuButton, IonSegment, IonSegmentButton, IonLabel,
   IonCard, IonCardHeader, IonCardTitle, IonCardContent,
-  IonList, IonItem, IonBadge, IonIcon, IonButton, IonText
+  IonList, IonItem, IonBadge, IonIcon, IonButton, IonText,
+  IonSpinner
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
@@ -14,7 +15,11 @@ import {
   checkmarkCircleOutline, 
   closeCircleOutline,
   hourglass,
-  returnDownBack
+  returnDownBack,
+  analyticsOutline,
+  personCircleOutline,
+  libraryOutline,
+  calendarOutline
 } from 'ionicons/icons';
 import { AuthService } from '../services/auth.service';
 import { LoanService } from '../services/loan.service';
@@ -30,7 +35,7 @@ import { User } from '../models/user.model';
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
     IonMenuButton, IonSegment, IonSegmentButton, IonLabel,
     IonCard, IonCardHeader, IonCardTitle, IonCardContent,
-    IonList, IonItem, IonBadge, IonIcon, IonButton, IonText
+    IonList, IonItem, IonBadge, IonIcon, IonButton, IonSpinner
   ]
 })
 export class DashboardPage implements OnInit {
@@ -50,14 +55,17 @@ export class DashboardPage implements OnInit {
   constructor(
     private authService: AuthService,
     private loanService: LoanService
-  ) {
-    addIcons({ 
+  ) {    addIcons({ 
       bookOutline, 
       timeOutline, 
       checkmarkCircleOutline, 
       closeCircleOutline,
       hourglass,
-      returnDownBack
+      returnDownBack,
+      analyticsOutline,
+      personCircleOutline,
+      libraryOutline,
+      calendarOutline
     });
   }
 
@@ -201,5 +209,14 @@ export class DashboardPage implements OnInit {
         console.error('Error returning book:', error);
       }
     });
+  }
+
+  getRoleDisplayName(role: string): string {
+    switch (role) {
+      case 'member': return 'Membro';
+      case 'librarian': return 'Bibliotecario';
+      case 'admin': return 'Amministratore';
+      default: return role;
+    }
   }
 }

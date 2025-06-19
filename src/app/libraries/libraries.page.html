@@ -1,48 +1,68 @@
 <ion-header [translucent]="true">
-  <ion-toolbar color="primary">
+  <ion-toolbar class="modern-toolbar">
     <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
+      <ion-menu-button class="menu-button"></ion-menu-button>
     </ion-buttons>
-    <ion-title>Biblioteche</ion-title>
+    <ion-title class="page-title">
+      <div class="title-content">
+        <ion-icon name="library-outline" class="title-icon"></ion-icon>
+        <span>Biblioteche</span>
+      </div>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="modern-content">
   <div class="libraries-container">
+    <!-- Loading State -->
     <div *ngIf="isLoading" class="loading-section">
-      <p>Caricamento biblioteche...</p>
+      <div class="loading-content">
+        <ion-icon name="library-outline" class="loading-icon"></ion-icon>
+        <div class="loading-spinner">
+          <div class="spinner"></div>
+        </div>
+        <p>Caricamento biblioteche...</p>
+      </div>
     </div>
 
-    <ion-grid *ngIf="!isLoading">
+    <!-- Libraries Grid -->
+    <ion-grid *ngIf="!isLoading" class="libraries-grid">
       <ion-row>
         <ion-col size="12" size-md="6" size-lg="4" *ngFor="let library of libraries">
           <ion-card class="library-card">
-            <ion-card-header>
-              <div class="library-icon">
-                <ion-icon name="library-outline"></ion-icon>
+            <div class="card-glow"></div>
+            <ion-card-header class="card-header">
+              <div class="library-icon-container">
+                <div class="library-icon">
+                  <ion-icon name="library-outline"></ion-icon>
+                </div>
+                <div class="icon-pulse"></div>
               </div>
-              <ion-card-title>{{ library.name }}</ion-card-title>
+              <ion-card-title class="library-title">{{ library.name }}</ion-card-title>
             </ion-card-header>
             
-            <ion-card-content>
-              <ion-list>
-                <ion-item>
-                  <ion-icon name="location-outline" slot="start"></ion-icon>
-                  <ion-label>
+            <ion-card-content class="card-content">
+              <ion-list class="library-details">
+                <ion-item class="detail-item">
+                  <div class="detail-icon">
+                    <ion-icon name="location-outline"></ion-icon>
+                  </div>
+                  <ion-label class="detail-label">
                     <h3>Indirizzo</h3>
                     <p>{{ library.address }}</p>
                   </ion-label>
                 </ion-item>
               </ion-list>
               
-              <div class="action-buttons">
+              <div class="action-section">
                 <ion-button 
                   expand="block" 
                   fill="solid" 
-                  color="primary"
+                  class="view-books-btn"
                   (click)="viewLibraryBooks(library)">
                   <ion-icon name="book-outline" slot="start"></ion-icon>
-                  Visualizza Libri
+                  <span>Visualizza Libri</span>
+                  <div class="btn-shine"></div>
                 </ion-button>
               </div>
             </ion-card-content>
@@ -51,10 +71,16 @@
       </ion-row>
     </ion-grid>
 
+    <!-- Empty State -->
     <div *ngIf="!isLoading && libraries.length === 0" class="empty-state">
-      <ion-icon name="library-outline"></ion-icon>
-      <h2>Nessuna biblioteca disponibile</h2>
-      <p>Non ci sono biblioteche registrate al momento.</p>
+      <div class="empty-content">
+        <div class="empty-icon-container">
+          <ion-icon name="library-outline" class="empty-icon"></ion-icon>
+          <div class="icon-bg"></div>
+        </div>
+        <h2>Nessuna biblioteca disponibile</h2>
+        <p>Non ci sono biblioteche registrate al momento. Contatta l'amministratore per aggiungere nuove biblioteche al sistema.</p>
+      </div>
     </div>
   </div>
 </ion-content>

@@ -1,0 +1,93 @@
+<ion-header>
+  <ion-toolbar class="modal-toolbar">
+    <ion-title>{{ library.name }} - Libri</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()" fill="clear">
+        <ion-icon name="close" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="modal-content">
+  <div class="books-container">
+    <!-- Header Section -->
+    <div class="header-section">
+      <div class="library-info">
+        <div class="library-icon">
+          <ion-icon name="library"></ion-icon>
+        </div>
+        <div class="library-details">
+          <h2>{{ library.name }}</h2>
+          <p class="library-address">
+            <ion-icon name="location"></ion-icon>
+            {{ library.address }}
+          </p>
+        </div>
+      </div>
+      
+      <!-- Search Bar -->
+      <div class="search-section">
+        <ion-searchbar
+          [(ngModel)]="searchTerm"
+          (ionInput)="filterBooks()"
+          placeholder="Cerca libri per titolo, autore, categoria..."
+          show-clear-button="focus"
+          debounce="300">
+        </ion-searchbar>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-section">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Caricamento libri in corso...</p>
+    </div>
+
+    <!-- Books Grid -->
+    <div *ngIf="!isLoading" class="books-grid">
+      <div *ngFor="let book of filteredBooks" class="book-card">
+        <div class="book-header">
+          <div class="book-icon">
+            <ion-icon name="book"></ion-icon>
+          </div>
+          <div class="availability-badge" [class]="getAvailabilityClass(book.copies)">
+            {{ getAvailabilityText(book.copies) }}
+          </div>
+        </div>
+        
+        <div class="book-content">
+          <h3 class="book-title">{{ book.title }}</h3>
+          <p class="book-author">
+            <ion-icon name="person"></ion-icon>
+            {{ book.author }}
+          </p>
+          
+          <div class="book-details">
+            <div class="detail-item" *ngIf="book.category">
+              <ion-icon name="pricetag"></ion-icon>
+              <span>{{ book.category }}</span>
+            </div>
+            <div class="detail-item" *ngIf="book.isbn">
+              <ion-icon name="barcode"></ion-icon>
+              <span>{{ book.isbn }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && filteredBooks.length === 0 && books.length > 0" class="empty-state">
+      <ion-icon name="search"></ion-icon>
+      <h3>Nessun risultato</h3>
+      <p>Non sono stati trovati libri che corrispondono alla tua ricerca.</p>
+    </div>
+
+    <div *ngIf="!isLoading && books.length === 0" class="empty-state">
+      <ion-icon name="book"></ion-icon>
+      <h3>Nessun libro disponibile</h3>
+      <p>Questa biblioteca non ha ancora libri nel catalogo.</p>
+    </div>
+  </div>
+</ion-content>

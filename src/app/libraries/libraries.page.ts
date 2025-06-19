@@ -4,12 +4,14 @@ import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, 
   IonMenuButton, IonCard, IonCardHeader, IonCardTitle, 
   IonCardContent, IonGrid, IonRow, IonCol, IonButton, IonIcon,
-  IonItem, IonLabel, IonBadge, IonList, IonText
+  IonItem, IonLabel, IonBadge, IonList, IonText, ModalController,
+  LoadingController, ToastController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { libraryOutline, locationOutline, bookOutline } from 'ionicons/icons';
 import { LibraryService } from '../services/library.service';
 import { Library } from '../models/library.model';
+import { LibraryBooksModalComponent } from '../library-books-modal/library-books-modal.component';
 
 @Component({
   selector: 'app-libraries',
@@ -20,14 +22,19 @@ import { Library } from '../models/library.model';
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
     IonMenuButton, IonCard, IonCardHeader, IonCardTitle,
     IonCardContent, IonGrid, IonRow, IonCol, IonButton, IonIcon,
-    IonItem, IonLabel, IonBadge, IonList, IonText
+    IonItem, IonLabel, IonList
   ]
 })
 export class LibrariesPage implements OnInit {
   libraries: Library[] = [];
   isLoading = true;
 
-  constructor(private libraryService: LibraryService) {
+  constructor(
+    private libraryService: LibraryService,
+    private modalController: ModalController,
+    private loadingController: LoadingController,
+    private toastController: ToastController
+  ) {
     addIcons({ libraryOutline, locationOutline, bookOutline });
   }
 
@@ -49,9 +56,25 @@ export class LibrariesPage implements OnInit {
       }
     });
   }
+  async viewLibraryBooks(library: Library) {
+    const modal = await this.modalController.create({
+      component: LibraryBooksModalComponent,
+      componentProps: {
+        library: library
+      },
+      cssClass: 'library-books-modal'
+    });
 
-  viewLibraryBooks(library: Library) {
-    console.log('View books for library:', library);
-    // TODO: Navigate to library books view
+    return await modal.present();
+  }
+
+  async showToast(message: string, color: string = 'primary') {
+    const toast = await this.toastController.create({
+      message,
+      duration: 3000,
+      color,
+      position: 'bottom'
+    });
+    toast.present();
   }
 }
