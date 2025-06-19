@@ -8,10 +8,13 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
-  close, library, location, book, person, pricetag, barcode, search 
+  close, library, location, book, person, pricetag, barcode, search, addCircleOutline, banOutline 
 } from 'ionicons/icons';
 import { LibraryService } from '../services/library.service';
+import { LoanService } from '../services/loan.service';
+import { AuthService } from '../services/auth.service';
 import { Library, LibraryBook } from '../models/library.model';
+import { CreateLoanRequest } from '../models/loan.model';
 
 @Component({
   selector: 'app-library-books-modal',
@@ -25,18 +28,19 @@ import { Library, LibraryBook } from '../models/library.model';
 })
 export class LibraryBooksModalComponent implements OnInit {
   @Input() library!: Library;
-  
-  books: LibraryBook[] = [];
+    books: LibraryBook[] = [];
   isLoading = false;
   searchTerm = '';
   filteredBooks: LibraryBook[] = [];
-  constructor(
+  isProcessingLoan: { [bookId: number]: boolean } = {};  constructor(
     private modalController: ModalController,
     private libraryService: LibraryService,
+    private loanService: LoanService,
+    private authService: AuthService,
     private loadingController: LoadingController,
     private toastController: ToastController
   ) { 
-    addIcons({ close, library, location, book, person, pricetag, barcode, search });
+    addIcons({ close, library, location, book, person, pricetag, barcode, search, addCircleOutline, banOutline });
   }
 
   ngOnInit() {
@@ -88,7 +92,6 @@ export class LibraryBooksModalComponent implements OnInit {
     if (copies === 1) return '1 copia disponibile';
     return `${copies} copie disponibili`;
   }
-
   async showToast(message: string, color: string = 'primary') {
     const toast = await this.toastController.create({
       message,
@@ -97,6 +100,67 @@ export class LibraryBooksModalComponent implements OnInit {
       position: 'bottom'
     });
     toast.present();
+  }
+
+  async requestLoan(book: LibraryBook) {
+    try {
+      // Verifica se l'utente è autenticato
+      const currentUser = this.authService.getCurrentUser();
+      if (!currentUser || !currentUser.id) {
+        this.showToast('Devi essere autenticato per richiedere un prestito', 'danger');
+        return;
+      }
+
+      // Verifica se l'utente ha il ruolo member
+      if (currentUser.role !== 'member') {
+        this.showToast('Solo i membri possono richiedere prestiti', 'warning');
+        return;
+      }
+
+      // Imposta lo stato di caricamento per questo libro
+      this.isProcessingLoan[book.id] = true;      // Prepara i dati per la richiesta di prestito
+      const loanData: CreateLoanRequest = {
+        user_id: currentUser.id,
+        library_id: this.library.id,
+        book_id: book.id
+      };
+
+      // Effettua la richiesta di prestito
+      const response = await this.loanService.createLoan(loanData).toPromise();
+      
+      if (response && response.status === 'success') {
+        this.showToast(`Prestito richiesto con successo per "${book.title}"`, 'success');
+        
+        // Aggiorna la disponibilità del libro localmente
+        const bookIndex = this.books.findIndex(b => b.id === book.id);
+        if (bookIndex !== -1) {
+          this.books[bookIndex].copies = Math.max(0, this.books[bookIndex].copies - 1);
+        }
+        
+        const filteredIndex = this.filteredBooks.findIndex(b => b.id === book.id);
+        if (filteredIndex !== -1) {
+          this.filteredBooks[filteredIndex].copies = Math.max(0, this.filteredBooks[filteredIndex].copies - 1);
+        }
+      } else {
+        this.showToast('Errore durante la richiesta di prestito', 'danger');
+      }
+    } catch (error: any) {
+      console.error('Errore durante la richiesta di prestito:', error);
+      
+      // Gestisci errori specifici
+      if (error.error && error.error.error) {
+        this.showToast(error.error.error, 'danger');
+      } else if (error.status === 400) {
+        this.showToast('Libro non disponibile per il prestito', 'warning');
+      } else if (error.status === 403) {
+        this.showToast('Non hai i permessi per richiedere questo prestito', 'danger');
+      } else {
+        this.showToast('Errore durante la richiesta di prestito', 'danger');
+      }
+    } finally {
+      // Rimuovi lo stato di caricamento
+      this.isProcessingLoan[book.id] = false;
+    }
   }
 
   dismiss() {

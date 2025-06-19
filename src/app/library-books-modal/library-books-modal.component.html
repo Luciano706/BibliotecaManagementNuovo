@@ -62,8 +62,7 @@
             <ion-icon name="person"></ion-icon>
             {{ book.author }}
           </p>
-          
-          <div class="book-details">
+            <div class="book-details">
             <div class="detail-item" *ngIf="book.category">
               <ion-icon name="pricetag"></ion-icon>
               <span>{{ book.category }}</span>
@@ -72,6 +71,31 @@
               <ion-icon name="barcode"></ion-icon>
               <span>{{ book.isbn }}</span>
             </div>
+          </div>
+          
+          <!-- Loan Button -->
+          <div class="book-actions" *ngIf="book.copies > 0">
+            <ion-button 
+              expand="block" 
+              fill="solid" 
+              class="loan-button"
+              [disabled]="isProcessingLoan[book.id]"
+              (click)="requestLoan(book)">
+              <ion-spinner *ngIf="isProcessingLoan[book.id]" name="crescent" size="small"></ion-spinner>              <div *ngIf="!isProcessingLoan[book.id]" class="button-content">
+                <ion-icon name="add-circle-outline"></ion-icon>
+                <span>Prendi in Prestito</span>
+              </div>
+            </ion-button>
+          </div>
+          
+          <div class="book-actions" *ngIf="book.copies === 0">
+            <ion-button 
+              expand="block" 
+              fill="outline" 
+              class="unavailable-button"
+              disabled>              <ion-icon name="ban-outline"></ion-icon>
+              <span>Non Disponibile</span>
+            </ion-button>
           </div>
         </div>
       </div>
