@@ -89,26 +89,45 @@
           </form>
         </ion-card-content>
       </ion-card>
-    </div>
-
-    <!-- Add to Library -->
+    </div>    <!-- Add to Library -->
     <div *ngIf="selectedSegment === 'add-to-library'">
-      <ion-card>
+      <!-- Warning for librarians without library access -->
+      <ion-card *ngIf="!hasLibraryManagementAccess() && currentUser?.role === 'librarian'" color="warning">
+        <ion-card-header>
+          <ion-card-title>Accesso Limitato</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>Non hai ancora una biblioteca assegnata. Contatta l'amministratore per richiedere l'assegnazione di una biblioteca da gestire.</p>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card *ngIf="hasLibraryManagementAccess()">
         <ion-card-header>
           <ion-card-title>Gestisci Inventario Biblioteca</ion-card-title>
         </ion-card-header>
         
         <ion-card-content>
-          <form [formGroup]="addToLibraryForm" (ngSubmit)="onAddToLibrary()">
+          <form [formGroup]="addToLibraryForm" (ngSubmit)="onAddToLibrary()">            <!-- Library Selection: Different view for Admin vs Librarian -->
             <ion-item>
               <ion-label position="stacked">Biblioteca *</ion-label>
-              <ion-select formControlName="library_id" placeholder="Seleziona biblioteca">
+              <!-- Admin View: Dropdown Selection -->
+              <ion-select 
+                *ngIf="!isLibrarySelectionDisabled()"
+                formControlName="library_id" 
+                placeholder="Seleziona biblioteca">
                 <ion-select-option 
                   *ngFor="let library of libraries" 
                   [value]="library.id">
                   {{ library.name }}
                 </ion-select-option>
               </ion-select>
+              <!-- Librarian View: Fixed Library Display -->
+              <div *ngIf="isLibrarySelectionDisabled()" class="fixed-library">
+                <ion-text color="medium">
+                  <p>{{ getAssignedLibraryName() }}</p>
+                  <small>Biblioteca assegnata (non modificabile)</small>
+                </ion-text>
+              </div>
             </ion-item>
 
             <ion-item>
@@ -230,12 +249,10 @@
                 min="1"
                 placeholder="Inserisci il numero di copie">
               </ion-input>
-            </ion-item>
-
-            <div class="error-messages" *ngIf="addToLibraryForm.invalid && addToLibraryForm.touched">
-              <ion-text color="danger" *ngIf="addToLibraryForm.get('library_id')?.hasError('required')">
+            </ion-item>            <div class="error-messages" *ngIf="addToLibraryForm.invalid && addToLibraryForm.touched">
+              <ion-text color="danger" *ngIf="addToLibraryForm.get('library_id')?.hasError('required') && !isLibrarySelectionDisabled()">
                 Biblioteca è richiesta
-              </ion-text>              <ion-text color="danger" *ngIf="addToLibraryForm.get('book_id')?.hasError('required')">
+              </ion-text><ion-text color="danger" *ngIf="addToLibraryForm.get('book_id')?.hasError('required')">
                 Seleziona un libro dal catalogo
               </ion-text>
               <ion-text color="danger" *ngIf="addToLibraryForm.get('title')?.hasError('required')">
@@ -253,12 +270,10 @@
               <ion-text color="danger" *ngIf="addToLibraryForm.get('copies')?.hasError('required')">
                 Numero di copie è richiesto
               </ion-text>
-            </div>
-
-            <ion-button 
+            </div>            <ion-button 
               expand="block" 
               type="submit" 
-              [disabled]="isSubmitting || addToLibraryForm.invalid"
+              [disabled]="isSubmitting || !isFormValid()"
               class="submit-button">
               <ion-spinner *ngIf="isSubmitting"></ion-spinner>
               <span *ngIf="!isSubmitting">

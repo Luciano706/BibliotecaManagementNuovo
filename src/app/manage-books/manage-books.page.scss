@@ -232,3 +232,23 @@ ion-toast[color="success"] {
     }
   }
 }
+
+// Fixed Library Display for Librarians
+.fixed-library {
+  padding: 12px;
+  background: var(--ion-color-light);
+  border-radius: 8px;
+  border: 1px solid var(--ion-color-medium-tint);
+  
+  p {
+    margin: 0;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    font-size: 1rem;
+  }
+  
+  small {
+    color: var(--ion-color-medium);
+    font-style: italic;
+  }
+}

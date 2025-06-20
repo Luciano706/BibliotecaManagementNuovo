@@ -41,6 +41,7 @@ export class ManageBooksPage implements OnInit {
   isLoadingBooks = false;
   toastMessage = '';
   showToast = false;
+  hasLibraryAccess = true; // Track if librarian has library access
 
   constructor(
     private formBuilder: FormBuilder,
@@ -94,21 +95,55 @@ export class ManageBooksPage implements OnInit {
       isbnControl?.updateValueAndValidity();
       categoryControl?.updateValueAndValidity();
     });
-  }
-  ngOnInit() {
+  }  ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+      this.setupLibraryAccess();
     });
     
     this.loadLibraries();
     this.loadBooks();
+  }  setupLibraryAccess() {
+    if (!this.currentUser) return;
+
+    const libraryControl = this.addToLibraryForm.get('library_id');
+    
+    if (this.currentUser.role === 'librarian') {
+      // Librarian: find their managed library and preselect it
+      const managedLibrary = this.libraries.find(lib => lib.manager_id === this.currentUser!.id);
+      if (managedLibrary) {
+        libraryControl?.setValue(managedLibrary.id);
+        libraryControl?.disable();
+        this.hasLibraryAccess = true;
+      } else {
+        // Librarian has no assigned library
+        libraryControl?.disable();
+        this.hasLibraryAccess = false;
+      }
+    } else if (this.currentUser.role === 'admin') {
+      // Admin: enable library selection
+      libraryControl?.enable();
+      this.hasLibraryAccess = true;
+    }
   }
 
+  isLibrarySelectionDisabled(): boolean {
+    return this.currentUser?.role === 'librarian';
+  }
+
+  getAssignedLibraryName(): string {
+    if (this.currentUser?.role === 'librarian') {
+      const managedLibrary = this.libraries.find(lib => lib.manager_id === this.currentUser!.id);
+      return managedLibrary ? managedLibrary.name : 'Biblioteca non assegnata';
+    }
+    return '';
+  }
   loadLibraries() {
     this.libraryService.getLibraries().subscribe({
       next: (response) => {
         if (response.status === 'success' && response.data) {
           this.libraries = response.data;
+          this.setupLibraryAccess(); // Setup access after libraries are loaded
         }
       },
       error: (error) => {
@@ -151,12 +186,10 @@ export class ManageBooksPage implements OnInit {
         }
       });
     }
-  }
-
-  onAddToLibrary() {
-    if (this.addToLibraryForm.valid) {
+  }  onAddToLibrary() {
+    if (this.isFormValid()) {
       this.isSubmitting = true;
-      const formValue = this.addToLibraryForm.value;
+      const formValue = this.addToLibraryForm.getRawValue(); // getRawValue() includes disabled controls
       
       if (formValue.action === 'existing') {
         // Add existing book to library
@@ -222,5 +255,23 @@ export class ManageBooksPage implements OnInit {
 
   onToastDismiss() {
     this.showToast = false;
+  }
+  isFormValid(): boolean {
+    if (this.isLibrarySelectionDisabled()) {
+      // For librarians, check if they have a managed library and other form fields are valid
+      const formValue = this.addToLibraryForm.getRawValue();
+      const managedLibrary = this.libraries.find(lib => lib.manager_id === this.currentUser!.id);
+      
+      return managedLibrary && 
+             formValue.action && 
+             formValue.copies >= 1 &&
+             ((formValue.action === 'existing' && formValue.book_id) ||
+              (formValue.action === 'new' && formValue.title && formValue.author && formValue.isbn && formValue.category));
+    }
+    return this.addToLibraryForm.valid;
+  }
+
+  hasLibraryManagementAccess(): boolean {
+    return this.hasLibraryAccess;
   }
 }
