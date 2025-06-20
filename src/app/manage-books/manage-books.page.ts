@@ -6,9 +6,26 @@ import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, 
   IonMenuButton, IonCard, IonCardHeader, IonCardTitle, 
   IonCardContent, IonItem, IonLabel, IonInput, IonButton,
-  IonSelect, IonSelectOption, IonText, IonToast, IonSegment,
-  IonSegmentButton, IonList, IonSpinner
+  IonSelect, IonSelectOption, IonToast, IonSegment,
+  IonSegmentButton, IonSpinner, IonIcon, IonGrid,
+  IonRow, IonCol
 } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { 
+  settingsOutline, 
+  libraryOutline, 
+  bookOutline, 
+  addOutline,
+  addCircleOutline,
+  checkmarkCircleOutline,
+  alertCircleOutline,
+  textOutline,
+  personOutline,
+  barcodeOutline,
+  pricetagOutline,
+  optionsOutline,
+  copyOutline
+} from 'ionicons/icons';
 import { AuthService } from '../services/auth.service';
 import { LibraryService } from '../services/library.service';
 import { Library } from '../models/library.model';
@@ -24,8 +41,9 @@ import { User } from '../models/user.model';
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
     IonMenuButton, IonCard, IonCardHeader, IonCardTitle,
     IonCardContent, IonItem, IonLabel, IonInput, IonButton,
-    IonSelect, IonSelectOption, IonText, IonToast, IonSegment,
-    IonSegmentButton, IonList, IonSpinner
+    IonSelect, IonSelectOption, IonToast, IonSegment,
+    IonSegmentButton, IonSpinner, IonIcon, IonGrid,
+    IonRow, IonCol
   ]
 })
 export class ManageBooksPage implements OnInit {
@@ -42,12 +60,26 @@ export class ManageBooksPage implements OnInit {
   toastMessage = '';
   showToast = false;
   hasLibraryAccess = true; // Track if librarian has library access
-
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private libraryService: LibraryService
-  ) {
+  ) {    addIcons({ 
+      settingsOutline, 
+      libraryOutline, 
+      bookOutline, 
+      addOutline,
+      addCircleOutline,
+      checkmarkCircleOutline,
+      alertCircleOutline,
+      textOutline,
+      personOutline,
+      barcodeOutline,
+      pricetagOutline,
+      optionsOutline,
+      copyOutline
+    });
+    
     this.addBookForm = this.formBuilder.group({
       title: ['', [Validators.required]],
       author: ['', [Validators.required]],
