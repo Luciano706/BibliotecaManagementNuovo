@@ -6,6 +6,9 @@
         <span>BibliotecaManager</span>
       </div>
     </ion-title>
+    <ion-button slot="end" fill="clear" (click)="logout()" *ngIf="currentUser" class="logout-button">
+      <ion-icon name="log-out-outline" class="logout-icon"></ion-icon>
+    </ion-button>
   </ion-toolbar>
 </ion-header>
 
@@ -18,16 +21,6 @@
       </div>
       <h1 class="hero-title">Benvenuto, {{ currentUser.username }}!</h1>
       <p class="hero-subtitle">{{ currentUser.role ? getRoleDisplayName(currentUser.role) : 'Utente' }}</p>
-      <div class="hero-stats">
-        <div class="stat-item">
-          <ion-icon name="book-outline"></ion-icon>
-          <span>Gestione Completa</span>
-        </div>
-        <div class="stat-item">
-          <ion-icon name="time-outline"></ion-icon>
-          <span>24/7 Disponibile</span>
-        </div>
-      </div>
     </div>
     <div class="hero-decoration">
       <div class="decoration-circle circle-1"></div>
@@ -46,10 +39,7 @@
 
   <!-- Main Navigation Cards -->
   <div class="navigation-section" *ngIf="currentUser">
-    <div class="section-header">
-      <h2>Esplora le Funzionalità</h2>
-      <p>Accedi rapidamente alle sezioni principali dell'applicazione</p>
-    </div>
+    
     
     <div class="cards-grid">
       <div class="nav-card" *ngFor="let item of menuItems; let i = index" 
@@ -73,37 +63,5 @@
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- Quick Actions -->
-  <div class="quick-actions" *ngIf="currentUser">
-    <div class="section-header">
-      <h2>Azioni Rapide</h2>
-    </div>
-    <div class="actions-row">
-      <div class="action-item" (click)="logout()">
-        <div class="action-icon logout-icon">
-          <ion-icon name="log-out-outline"></ion-icon>
-        </div>
-        <span>Logout</span>
-      </div>
-      <div class="action-item" (click)="navigateTo('/catalog')">
-        <div class="action-icon search-icon">
-          <ion-icon name="search-outline"></ion-icon>
-        </div>
-        <span>Cerca Libri</span>
-      </div>
-      <div class="action-item" (click)="navigateTo('/dashboard')">
-        <div class="action-icon stats-icon">
-          <ion-icon name="analytics-outline"></ion-icon>
-        </div>
-        <span>Le Mie Statistiche</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <div class="footer-section">
-    <p>&copy; 2025 BibliotecaManager - Sistema di gestione bibliotecaria moderno</p>
   </div>
 </ion-content>

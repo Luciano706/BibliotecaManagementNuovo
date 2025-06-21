@@ -8,7 +8,8 @@ import {
   IonTitle,
   IonContent,
   IonIcon,
-  IonSpinner
+  IonSpinner,
+  IonButton
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
@@ -40,7 +41,8 @@ import { User } from '../models/user.model';
     IonTitle,
     IonContent,
     IonIcon,
-    IonSpinner
+    IonSpinner,
+    IonButton
   ],
 })
 export class HomePage implements OnInit, OnDestroy {

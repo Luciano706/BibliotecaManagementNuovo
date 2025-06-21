@@ -308,26 +308,7 @@ ion-content.login-content {
   }
 }
 
-// === FOOTER ===
-.login-footer {
-  margin-top: 2rem;
-  animation: fadeInUp 0.8s ease-out 0.4s both;
 
-  .footer-text {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 0.9rem;
-    opacity: 0.9;
-
-    ion-icon {
-      font-size: 1.1rem;
-      color: #10b981;
-    }
-  }
-}
 
 // === ANIMATIONS ===
 @keyframes fadeInUp {

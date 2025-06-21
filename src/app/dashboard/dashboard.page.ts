@@ -42,11 +42,9 @@ export class DashboardPage implements OnInit {
   currentUser: User | null = null;
   selectedSegment = 'loans';
   
-  // Member data
   memberLoans: Loan[] = [];
   memberReservations: Reservation[] = [];
   
-  // Librarian/Admin data
   pendingLoans: Loan[] = [];
   pendingReservations: Reservation[] = [];
   
