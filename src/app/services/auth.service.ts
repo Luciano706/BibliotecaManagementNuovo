@@ -8,56 +8,151 @@ import { User, LoginRequest, RegisterRequest, ApiResponse } from '../models/user
   providedIn: 'root'
 })
 export class AuthService {
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
-  public currentUser$ = this.currentUserSubject.asObservable();
-  private isLoggedInSubject = new BehaviorSubject<boolean>(false);
-  public isLoggedIn$ = this.isLoggedInSubject.asObservable();
+  private utenteAttualeSubject = new BehaviorSubject<User | null>(null);
+  private loggatoSubject = new BehaviorSubject<boolean>(false);
 
   constructor(private http: HttpClient) {
-    this.checkStoredUser();
+    this.verificaUtenteLoggato();
   }
 
-  private checkStoredUser() {
-    const storedUser = localStorage.getItem('currentUser');
+  private verificaUtenteLoggato() {
+    const storedUser = localStorage.getItem('utenteAttuale');
     if (storedUser) {
       const user = JSON.parse(storedUser);
-      this.currentUserSubject.next(user);
-      this.isLoggedInSubject.next(true);
+      this.utenteAttualeSubject.next(user);
+      this.loggatoSubject.next(true);
     }
   }
+
+
+  ottieniUtenteSubject$(): Observable<User | null> {
+    return this.utenteAttualeSubject.asObservable();
+  }
+
+  ottieniLoggatoSubject$(): Observable<boolean> {
+    return this.loggatoSubject.asObservable();
+  }
+
   login(credentials: LoginRequest): Observable<ApiResponse<User>> {
     return this.http.post<ApiResponse<User>>('/api/login', credentials).pipe(
       tap(response => {
-        console.log('Login response:', response); // Debug log
         if (response.status === 'success' && response.data) {
-          this.currentUserSubject.next(response.data);
-          this.isLoggedInSubject.next(true);
-          localStorage.setItem('currentUser', JSON.stringify(response.data));
+          this.utenteAttualeSubject.next(response.data);
+          this.loggatoSubject.next(true);
+          localStorage.setItem('utenteAttuale', JSON.stringify(response.data));
+          localStorage.setItem('timeLogin', Date.now().toString());
         }
       })
     );
   }
 
-  register(userData: RegisterRequest): Observable<ApiResponse<any>> {
+  registrati(userData: RegisterRequest): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>('/api/register', userData);
   }
 
   logout() {
-    localStorage.removeItem('currentUser');
-    this.currentUserSubject.next(null);
-    this.isLoggedInSubject.next(false);
+    localStorage.removeItem('utenteAttuale');
+    localStorage.removeItem('timeLogin');
+    this.utenteAttualeSubject.next(null);
+    this.loggatoSubject.next(false);
   }
 
-  getCurrentUser(): User | null {
-    return this.currentUserSubject.value;
+  private getCookie(name: string): string | null{
+	const nameLenPlus = (name.length + 1);
+	return document.cookie
+		.split(';')
+		.map(c => c.trim())
+		.filter(cookie => {
+			return cookie.substring(0, nameLenPlus) === `${name}=`;
+		})
+		.map(cookie => {
+			return decodeURIComponent(cookie.substring(nameLenPlus));
+		})[0] || null;
   }
 
-  isAuthenticated(): boolean {
-    return this.isLoggedInSubject.value;
+
+
+  checkValiditaSessione(): boolean {
+    const timeLogin = localStorage.getItem('timeLogin');
+    if (timeLogin) {
+      const loginTime = parseInt(timeLogin, 10);
+      const currentTime = Date.now();
+      const sessionDuration = currentTime - loginTime;
+      const sessionTimeout = 3 * 60 * 60 * 1000; // 3 ore in millisecondi
+
+      if (sessionDuration > sessionTimeout && !(this.getCookie('session')=== undefined || this.getCookie('session')=== null || this.getCookie('session')==="")) {
+        this.logout();
+        return false;
+      }
+      if((this.getCookie('session')=== undefined || this.getCookie('session')=== null || this.getCookie('session')==="") && localStorage.getItem('utenteAttuale')!==null)
+      {
+        let user = this.getUsername();
+        let password= JSON.parse(localStorage.getItem('utenteAttuale') || "").password;
+        const loginRequest: LoginRequest  ={ username: this.getUsername(), password: password };
+        this.login(loginRequest).subscribe({
+          next: (response) => {
+            if (response.status === 'success' && response.data) {
+              this.utenteAttualeSubject.next(response.data);
+              this.loggatoSubject.next(true);
+              localStorage.setItem('utenteAttuale', JSON.stringify(response.data));
+              localStorage.setItem('timeLogin', Date.now().toString());
+            }
+          },
+          error: (error) => {
+            console.error('Errore durante il rinnovo della sessione:', error);
+            this.logout();
+          }
+        });
+
+      }
+    }
+    return true;
   }
 
-  hasRole(roles: string[]): boolean {
-    const user = this.getCurrentUser();
-    return user ? roles.includes(user.role) : false;
+  ottieniUtenteAttuale(): User | null {
+    return this.utenteAttualeSubject.value;
+  }
+
+  isAutenticato(): boolean {
+    return this.utenteAttualeSubject.value !== null;
+  }
+
+  haRuolo(ruolos: string[]): boolean {
+    const user = this.ottieniUtenteAttuale();
+    return user ? ruolos.includes(user.role) : false;
+  }
+
+  public getRuoloRaw(): string {
+    const jsonUser = localStorage.getItem('utenteAttuale');
+    if (jsonUser) {
+      return JSON.parse(jsonUser).role || '';
+    } else {
+      return '';
+    }
+  }
+
+  public getRuolo(): string {
+    const jsonUser = localStorage.getItem('utenteAttuale');
+    if(jsonUser)
+    {
+      switch (JSON.parse(jsonUser).role) {
+      case 'member': return 'Membro';
+      case 'librarian': return 'Bibliotecario';
+      case 'admin': return 'Amministratore';
+      default: return "";
+      }
+    }
+      
+    else
+      return "";
+  }
+
+  public getUsername(): string {
+    const jsonUser = localStorage.getItem('utenteAttuale');
+    if (jsonUser) {
+      return JSON.parse(jsonUser).username || '';
+    } else {
+      return '';
+    }
   }
 }

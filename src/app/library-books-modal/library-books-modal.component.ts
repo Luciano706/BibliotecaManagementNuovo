@@ -105,14 +105,14 @@ export class LibraryBooksModalComponent implements OnInit {
   async requestLoan(book: LibraryBook) {
     try {
       // Verifica se l'utente è autenticato
-      const currentUser = this.authService.getCurrentUser();
-      if (!currentUser || !currentUser.id) {
+      const utenteAttuale = this.authService.ottieniUtenteAttuale();
+      if (!utenteAttuale || !utenteAttuale.id) {
         this.showToast('Devi essere autenticato per richiedere un prestito', 'danger');
         return;
       }
 
-      // Verifica se l'utente ha il ruolo member
-      if (currentUser.role !== 'member') {
+      // Verifica se l'utente ha il role member
+      if (utenteAttuale.role !== 'member') {
         this.showToast('Solo i membri possono richiedere prestiti', 'warning');
         return;
       }
@@ -120,7 +120,7 @@ export class LibraryBooksModalComponent implements OnInit {
       // Imposta lo stato di caricamento per questo libro
       this.isProcessingLoan[book.id] = true;      // Prepara i dati per la richiesta di prestito
       const loanData: CreateLoanRequest = {
-        user_id: currentUser.id,
+        user_id: utenteAttuale.id,
         library_id: this.library.id,
         book_id: book.id
       };

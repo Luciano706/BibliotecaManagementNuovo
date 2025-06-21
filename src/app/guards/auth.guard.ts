@@ -5,12 +5,12 @@ import { AuthService } from '../services/auth.service';
 @Injectable({
   providedIn: 'root'
 })
-export class AuthGuard implements CanActivate {
+export class ControlloAccesso implements CanActivate {
 
   constructor(private authService: AuthService, private router: Router) {}
 
   canActivate(): boolean {
-    if (this.authService.isAuthenticated()) {
+    if (this.authService.isAutenticato()) {
       return true;
     } else {
       this.router.navigate(['/login']);
@@ -19,21 +19,21 @@ export class AuthGuard implements CanActivate {
   }
 }
 
+
 @Injectable({
   providedIn: 'root'
 })
-export class RoleGuard implements CanActivate {
+export class AreaPrivataControlloAccesso implements CanActivate {
   constructor(private authService: AuthService, private router: Router) {}
 
   canActivate(): boolean {
-    const user = this.authService.getCurrentUser();
-    
-    if (!user) {
-      this.router.navigate(['/login']);
+    const ruolo=this.authService.getRuoloRaw();
+
+    if (ruolo === 'admin' || ruolo === 'librarian') {
+      return true;
+    } else {
+      this.router.navigate(['/home']);
       return false;
     }
-
-    // This guard can be extended to check specific roles
-    return true;
   }
 }

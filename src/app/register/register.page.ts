@@ -67,10 +67,10 @@ export class RegisterPage implements OnInit {
   }
 
   ngOnInit() {
-    this.loadLibraries();
+    this.caricaBiblioteche();
   }
 
-  loadLibraries() {
+  caricaBiblioteche() {
     this.libraryService.getLibraries().subscribe({
       next: (response) => {
         if (response.status === 'success' && response.data) {
@@ -83,7 +83,7 @@ export class RegisterPage implements OnInit {
     });
   }
 
-  togglePasswordVisibility() {
+  mostraNascondiPassword() {
     this.showPassword = !this.showPassword;
   }
 
@@ -96,7 +96,7 @@ export class RegisterPage implements OnInit {
         delete formData.library_id;
       }
 
-      this.authService.register(formData).subscribe({
+      this.authService.registrati(formData).subscribe({
         next: (response) => {
           this.isLoading = false;
           if (response.status === 'success') {
@@ -119,7 +119,7 @@ export class RegisterPage implements OnInit {
     }
   }
 
-  goToLogin() {
+  login() {
     this.router.navigate(['/login']);
   }
 

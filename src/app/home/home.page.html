@@ -6,7 +6,7 @@
         <span>BibliotecaManager</span>
       </div>
     </ion-title>
-    <ion-button slot="end" fill="clear" (click)="logout()" *ngIf="currentUser" class="logout-button">
+    <ion-button slot="end" fill="clear" (click)="logout()" *ngIf="isAutenticato()" class="logout-button">
       <ion-icon name="log-out-outline" class="logout-icon"></ion-icon>
     </ion-button>
   </ion-toolbar>
@@ -14,13 +14,13 @@
 
 <ion-content [fullscreen]="true" class="modern-content">
   <!-- Hero Section -->
-  <div class="hero-section" *ngIf="currentUser">
+  <div class="hero-section" *ngIf="isAutenticato()">
     <div class="hero-content">
       <div class="user-avatar">
         <ion-icon name="person-circle-outline"></ion-icon>
       </div>
-      <h1 class="hero-title">Benvenuto, {{ currentUser.username }}!</h1>
-      <p class="hero-subtitle">{{ currentUser.role ? getRoleDisplayName(currentUser.role) : 'Utente' }}</p>
+      <h1 class="hero-title">Benvenuto, {{ getUsername() }}!</h1>
+      <p class="hero-subtitle">{{ getRuolo() }}</p>
     </div>
     <div class="hero-decoration">
       <div class="decoration-circle circle-1"></div>
@@ -30,7 +30,7 @@
   </div>
 
   <!-- Loading State -->
-  <div class="loading-section" *ngIf="!currentUser">
+  <div class="loading-section" *ngIf="!isAutenticato()">
     <div class="loading-spinner">
       <ion-spinner name="crescent"></ion-spinner>
     </div>
@@ -38,12 +38,12 @@
   </div>
 
   <!-- Main Navigation Cards -->
-  <div class="navigation-section" *ngIf="currentUser">
+  <div class="navigation-section" *ngIf="isAutenticato()">
     
     
     <div class="cards-grid">
-      <div class="nav-card" *ngFor="let item of menuItems; let i = index" 
-           (click)="navigateTo(item.path)"
+      <div class="nav-card" *ngFor="let item of ogettiMenu; let i = index" 
+           (click)="vai(item.path)"
            [style.animation-delay]="(i * 0.1) + 's'">
         <div class="card-background" [ngClass]="'bg-' + (i % 4 + 1)"></div>
         <div class="card-content">

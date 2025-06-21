@@ -44,9 +44,14 @@ export class LoginPage implements OnInit {
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    if(this.authService.checkValiditaSessione())
+    {
+      this.router.navigate(['/home']);
+    }
+  }
 
-  togglePasswordVisibility() {
+  mostraNascondiPassword() {
     this.showPassword = !this.showPassword;
   }
   onSubmit() {
@@ -55,23 +60,19 @@ export class LoginPage implements OnInit {
       
       this.authService.login(this.loginForm.value).subscribe({
         next: (response) => {
-          console.log('Login response received:', response); // Debug log
           this.isLoading = false;
           
           if (response.status === 'success') {
-            console.log('Login successful, navigating to home'); // Debug log
             setTimeout(() => {
               this.router.navigate(['/home']);
-            }, 100); // Small delay to ensure state is updated
+            }, 100);
           } else {
             this.showToastMessage(response.message || 'Errore durante il login');
           }
         },
         error: (error) => {
-          console.error('Login error:', error); // Debug log
           this.isLoading = false;
           
-          // Handle different error scenarios
           let errorMessage = 'Errore durante il login';
           if (error.error?.message) {
             errorMessage = error.error.message;
@@ -89,7 +90,7 @@ export class LoginPage implements OnInit {
     }
   }
 
-  goToRegister() {
+  registrati() {
     this.router.navigate(['/register']);
   }
 

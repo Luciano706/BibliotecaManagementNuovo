@@ -28,7 +28,6 @@ import {
   analyticsOutline
 } from 'ionicons/icons';
 import { AuthService } from '../services/auth.service';
-import { User } from '../models/user.model';
 
 @Component({
   selector: 'app-home',
@@ -46,8 +45,7 @@ import { User } from '../models/user.model';
   ],
 })
 export class HomePage implements OnInit, OnDestroy {
-  currentUser: User | null = null;
-  menuItems: any[] = [];
+  ogettiMenu: any[] = [];
   private userSubscription: Subscription | null = null;
 
   constructor(
@@ -70,11 +68,10 @@ export class HomePage implements OnInit, OnDestroy {
       analyticsOutline
     });
   }
-
   ngOnInit() {
-    this.userSubscription = this.authService.currentUser$.subscribe(user => {
-      this.currentUser = user;
-      this.updateMenuItems(); // Aggiorna gli elementi del menu quando cambia l'utente
+    this.authService.checkValiditaSessione();
+    this.userSubscription = this.authService.ottieniUtenteSubject$().subscribe(user => {
+      this.updateogettiMenu();
     });
   }
 
@@ -84,25 +81,27 @@ export class HomePage implements OnInit, OnDestroy {
     }
   }
 
-  private updateMenuItems() {
-    if (!this.currentUser) {
-      this.menuItems = [];
+  private updateogettiMenu() {
+    if (!this.authService.isAutenticato()) {
+      this.ogettiMenu = [];
       return;
     }
 
-    // Rimuoviamo "Home" dal menu per evitare loop infiniti
-    this.menuItems = [
+    this.ogettiMenu = [
       { title: 'Catalogo Libri', icon: 'book-outline', path: '/catalog' },
       { title: 'Biblioteche', icon: 'library-outline', path: '/libraries' },
       { title: 'Dashboard', icon: 'stats-chart-outline', path: '/dashboard' }
     ];
-
-    if (this.currentUser.role === 'librarian' || this.currentUser.role === 'admin') {
-      this.menuItems.push({ title: 'Gestione Libri', icon: 'add-outline', path: '/manage-books' });
+    if (this.authService.getRuoloRaw() === 'librarian' || this.authService.getRuoloRaw() === 'admin') {
+      this.ogettiMenu.push({ 
+        title: 'Gestione Libri', 
+        icon: 'add-outline', 
+        path: '/manage-books' 
+      });
     }
   }
 
-  navigateTo(path: string) {
+  vai(path: string) {
     this.router.navigate([path]);
   }
 
@@ -111,12 +110,15 @@ export class HomePage implements OnInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 
-  getRoleDisplayName(role: string): string {
-    switch (role) {
-      case 'member': return 'Membro';
-      case 'librarian': return 'Bibliotecario';
-      case 'admin': return 'Amministratore';
-      default: return role;
-    }
+  getRuolo(): string {
+    return this.authService.getRuolo();
+  }
+
+  getUsername(): string {
+    return this.authService.getUsername();
+  }
+
+  isAutenticato(): boolean {
+    return this.authService.isAutenticato();
   }
 }

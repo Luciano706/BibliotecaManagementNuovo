@@ -178,7 +178,7 @@
     </div>    <!-- Add to Library -->
     <div *ngIf="selectedSegment === 'add-to-library'" class="content-section">
       <!-- Warning for librarians without library access -->
-      <ion-grid *ngIf="!hasLibraryManagementAccess() && currentUser?.role === 'librarian'" class="form-grid">
+      <ion-grid *ngIf="!hasLibraryManagementAccess() && utenteAttuale?.role === 'librarian'" class="form-grid">
         <ion-row>
           <ion-col size="12" size-lg="8" offset-lg="2">
             <ion-card class="warning-card">

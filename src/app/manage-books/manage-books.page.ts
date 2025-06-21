@@ -47,7 +47,7 @@ import { User } from '../models/user.model';
   ]
 })
 export class ManageBooksPage implements OnInit {
-  currentUser: User | null = null;
+  utenteAttuale: User | null = null;
   selectedSegment = 'add-book';
   libraries: Library[] = [];
   books: any[] = []; // Lista di tutti i libri del catalogo
@@ -128,21 +128,21 @@ export class ManageBooksPage implements OnInit {
       categoryControl?.updateValueAndValidity();
     });
   }  ngOnInit() {
-    this.authService.currentUser$.subscribe(user => {
-      this.currentUser = user;
+    this.authService.ottieniUtenteSubject$().subscribe(user => {
+      this.utenteAttuale = user;
       this.setupLibraryAccess();
     });
     
     this.loadLibraries();
     this.loadBooks();
-  }  setupLibraryAccess() {
-    if (!this.currentUser) return;
+  }setupLibraryAccess() {
+    if (!this.utenteAttuale) return;
 
     const libraryControl = this.addToLibraryForm.get('library_id');
     
-    if (this.currentUser.role === 'librarian') {
+    if (this.utenteAttuale.role === 'librarian') {
       // Librarian: find their managed library and preselect it
-      const managedLibrary = this.libraries.find(lib => lib.manager_id === this.currentUser!.id);
+      const managedLibrary = this.libraries.find(lib => lib.manager_id === this.utenteAttuale!.id);
       if (managedLibrary) {
         libraryControl?.setValue(managedLibrary.id);
         libraryControl?.disable();
@@ -152,7 +152,7 @@ export class ManageBooksPage implements OnInit {
         libraryControl?.disable();
         this.hasLibraryAccess = false;
       }
-    } else if (this.currentUser.role === 'admin') {
+    } else if (this.utenteAttuale.role === 'admin') {
       // Admin: enable library selection
       libraryControl?.enable();
       this.hasLibraryAccess = true;
@@ -160,12 +160,12 @@ export class ManageBooksPage implements OnInit {
   }
 
   isLibrarySelectionDisabled(): boolean {
-    return this.currentUser?.role === 'librarian';
+    return this.utenteAttuale?.role === 'librarian';
   }
 
   getAssignedLibraryName(): string {
-    if (this.currentUser?.role === 'librarian') {
-      const managedLibrary = this.libraries.find(lib => lib.manager_id === this.currentUser!.id);
+    if (this.utenteAttuale?.role === 'librarian') {
+      const managedLibrary = this.libraries.find(lib => lib.manager_id === this.utenteAttuale!.id);
       return managedLibrary ? managedLibrary.name : 'Biblioteca non assegnata';
     }
     return '';
@@ -292,7 +292,7 @@ export class ManageBooksPage implements OnInit {
     if (this.isLibrarySelectionDisabled()) {
       // For librarians, check if they have a managed library and other form fields are valid
       const formValue = this.addToLibraryForm.getRawValue();
-      const managedLibrary = this.libraries.find(lib => lib.manager_id === this.currentUser!.id);
+      const managedLibrary = this.libraries.find(lib => lib.manager_id === this.utenteAttuale!.id);
       
       return managedLibrary && 
              formValue.action && 

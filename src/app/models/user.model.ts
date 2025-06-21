@@ -2,8 +2,8 @@ export interface User {
   id: number;
   username: string;
   email: string;
-  role: 'member' | 'librarian' | 'admin';
-  password?: string; // Opzionale perché non sempre necessaria nel frontend
+  role: 'member' | 'librarian' | 'admin'; //Nota: deve stare in inglese altrimenti non va con l'API
+  password?: string;
 }
 
 export interface LoginRequest {

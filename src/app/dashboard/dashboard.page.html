@@ -14,14 +14,14 @@
 
 <ion-content [fullscreen]="true" class="modern-content">
   <!-- Hero Section -->
-  <div class="hero-section" *ngIf="currentUser && !isLoading">
+  <div class="hero-section" *ngIf="isAutenticato() && !isLoading">
     <div class="hero-content">
       <div class="user-info">
         <div class="user-avatar">
           <ion-icon name="person-circle-outline"></ion-icon>
         </div>
         <h1 class="hero-title">Dashboard</h1>
-        <p class="hero-subtitle">{{ currentUser.username }} - {{ getRoleDisplayName(currentUser.role) }}</p>
+        <p class="hero-subtitle">{{ getUsername() }} - {{ getRuolo() }}</p>
       </div>
     </div>
     <div class="hero-decoration">
@@ -38,8 +38,8 @@
     <p class="loading-text">Caricamento dati...</p>
   </div>
 
-  <div class="dashboard-container" *ngIf="!isLoading && currentUser">    <!-- Member Dashboard -->
-    <div *ngIf="currentUser.role === 'member'" class="member-section">
+  <div class="dashboard-container" *ngIf="!isLoading && isAutenticato()">    <!-- Member Dashboard -->
+    <div *ngIf="getRuolo() === 'member'" class="member-section">
       <!-- Segment Navigation -->
       <div class="segment-container">
         <ion-segment [(ngModel)]="selectedSegment" class="modern-segment">
@@ -69,8 +69,8 @@
               </div>
               <div class="card-title-section">
                 <h3>{{ loan.title }}</h3>
-                <ion-badge [color]="getStatusColor(loan.status)" class="status-badge">
-                  {{ getStatusText(loan.status) }}
+                <ion-badge [color]="ottieniColorePerStato(loan.status)" class="status-badge">
+                  {{ ottieniStato(loan.status) }}
                 </ion-badge>
               </div>
             </div>
@@ -105,7 +105,7 @@
                   expand="block" 
                   color="success"
                   class="modern-button"
-                  (click)="returnBook(loan.id)">
+                  (click)="restituisciLibro(loan.id)">
                   <ion-icon name="return-down-back" slot="start"></ion-icon>
                   Restituisci Libro
                 </ion-button>
@@ -138,8 +138,8 @@
               </div>
               <div class="card-title-section">
                 <h3>{{ reservation.title }}</h3>
-                <ion-badge [color]="getStatusColor(reservation.status)" class="status-badge">
-                  {{ getStatusText(reservation.status) }}
+                <ion-badge [color]="ottieniColorePerStato(reservation.status)" class="status-badge">
+                  {{ ottieniStato(reservation.status) }}
                 </ion-badge>
               </div>
             </div>
@@ -176,7 +176,7 @@
     </div>
 
       <!-- Librarian/Admin Dashboard -->
-      <div *ngIf="currentUser.role === 'librarian' || currentUser.role === 'admin'">
+      <div *ngIf="getRuolo() === 'librarian' || getRuolo() === 'admin'">
         <ion-segment [(ngModel)]="selectedSegment">
           <ion-segment-button value="loans">
             <ion-label>Prestiti in Attesa</ion-label>
@@ -221,7 +221,7 @@
                 <ion-button 
                   expand="block" 
                   color="success"
-                  (click)="approveLoan(loan.id)">
+                  (click)="accettaPrestito(loan.id)">
                   <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
                   Approva
                 </ion-button>
@@ -229,7 +229,7 @@
                   expand="block" 
                   color="danger"
                   fill="outline"
-                  (click)="rejectLoan(loan.id)">
+                  (click)="rifiutaPrestito(loan.id)">
                   <ion-icon name="close-circle-outline" slot="start"></ion-icon>
                   Rifiuta
                 </ion-button>
@@ -279,7 +279,7 @@
                 <ion-button 
                   expand="block" 
                   color="success"
-                  (click)="approveReservation(reservation.id)">
+                  (click)="accettaPrenotazione(reservation.id)">
                   <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
                   Approva
                 </ion-button>
@@ -287,7 +287,7 @@
                   expand="block" 
                   color="danger"
                   fill="outline"
-                  (click)="rejectReservation(reservation.id)">
+                  (click)="rifiutaPrenotazione(reservation.id)">
                   <ion-icon name="close-circle-outline" slot="start"></ion-icon>
                   Rifiuta
                 </ion-button>

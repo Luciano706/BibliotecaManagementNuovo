@@ -9,7 +9,7 @@
 
   <!-- Back Button -->
   <div class="back-button-container">
-    <ion-button fill="clear" (click)="goToLogin()" class="back-button">
+    <ion-button fill="clear" (click)="login()" class="back-button">
       <ion-icon name="arrow-back-outline"></ion-icon>
       <span>Torna al Login</span>
     </ion-button>
@@ -87,7 +87,7 @@
             <ion-button 
               fill="clear" 
               class="password-toggle"
-              (click)="togglePasswordVisibility()">
+              (click)="mostraNascondiPassword()">
               <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
             </ion-button>
           </div>
@@ -110,6 +110,7 @@
               class="custom-select">
               <ion-select-option value="member">Membro</ion-select-option>
               <ion-select-option value="librarian">Bibliotecario</ion-select-option>
+              <ion-select-option value="admin">Admin</ion-select-option>
             </ion-select>
           </div>
         </div>
@@ -151,7 +152,7 @@
         <!-- Login Link -->
         <div class="login-section">
           <span class="login-text">Hai già un account?</span>
-          <ion-button fill="clear" class="login-button" (click)="goToLogin()">
+          <ion-button fill="clear" class="login-button" (click)="login()">
             Accedi qui
           </ion-button>
         </div>

@@ -24,7 +24,6 @@ import {
 import { AuthService } from '../services/auth.service';
 import { LoanService } from '../services/loan.service';
 import { Loan, Reservation } from '../models/loan.model';
-import { User } from '../models/user.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -39,7 +38,6 @@ import { User } from '../models/user.model';
   ]
 })
 export class DashboardPage implements OnInit {
-  currentUser: User | null = null;
   selectedSegment = 'loans';
   
   memberLoans: Loan[] = [];
@@ -66,34 +64,32 @@ export class DashboardPage implements OnInit {
       calendarOutline
     });
   }
-
   ngOnInit() {
-    this.authService.currentUser$.subscribe(user => {
-      this.currentUser = user;
-      if (user) {
-        this.loadDashboardData();
-      }
-    });
+
+    if (this.authService.isAutenticato()) {
+      this.caricaDatiDashboard();
+    }
+
   }
 
-  loadDashboardData() {
-    if (!this.currentUser) return;
+  caricaDatiDashboard() {
+    if (!this.authService.isAutenticato()) return;
 
-    if (this.currentUser.role === 'member') {
-      this.loadMemberData();
+    if (this.authService.getRuoloRaw() === 'member') {
+      this.caricaDatiMembro();
     } else {
-      this.loadLibrarianData();
+      this.caricaDatiBibliotecario();
     }
   }
 
-  loadMemberData() {
+  caricaDatiMembro() {
     this.loanService.getMemberLoans().subscribe({
       next: (loans) => {
         this.memberLoans = loans;
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error loading member loans:', error);
+        console.error('Errore:', error);
         this.isLoading = false;
       }
     });
@@ -103,19 +99,19 @@ export class DashboardPage implements OnInit {
         this.memberReservations = reservations;
       },
       error: (error) => {
-        console.error('Error loading member reservations:', error);
+        console.error('Errore:', error);
       }
     });
   }
 
-  loadLibrarianData() {
+  caricaDatiBibliotecario() {
     this.loanService.getPendingLoans().subscribe({
       next: (loans) => {
         this.pendingLoans = loans;
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error loading pending loans:', error);
+        console.error('Errore:', error);
         this.isLoading = false;
       }
     });
@@ -125,12 +121,12 @@ export class DashboardPage implements OnInit {
         this.pendingReservations = reservations;
       },
       error: (error) => {
-        console.error('Error loading pending reservations:', error);
+        console.error('Errore:', error);
       }
     });
   }
 
-  getStatusColor(status: string): string {
+  ottieniColorePerStato(status: string): string {
     switch (status) {
       case 'approved': return 'success';
       case 'rejected': return 'danger';
@@ -142,7 +138,7 @@ export class DashboardPage implements OnInit {
     }
   }
 
-  getStatusText(status: string): string {
+  ottieniStato(status: string): string {
     switch (status) {
       case 'approved': return 'Approvato';
       case 'rejected': return 'Rifiutato';
@@ -154,67 +150,72 @@ export class DashboardPage implements OnInit {
     }
   }
 
-  approveLoan(loanId: number) {
+  accettaPrestito(loanId: number) {
     this.loanService.updateLoanStatus(loanId, { status: 'approved' }).subscribe({
       next: () => {
-        this.loadLibrarianData();
+        this.caricaDatiBibliotecario();
       },
       error: (error) => {
-        console.error('Error approving loan:', error);
+        console.error('Errore:', error);
       }
     });
   }
 
-  rejectLoan(loanId: number) {
+  rifiutaPrestito(loanId: number) {
     this.loanService.updateLoanStatus(loanId, { status: 'rejected' }).subscribe({
       next: () => {
-        this.loadLibrarianData();
+        this.caricaDatiBibliotecario();
       },
       error: (error) => {
-        console.error('Error rejecting loan:', error);
+        console.error('Errore:', error);
       }
     });
   }
 
-  approveReservation(reservationId: number) {
+  accettaPrenotazione(reservationId: number) {
     this.loanService.updateReservationStatus(reservationId, { status: 'approved' }).subscribe({
       next: () => {
-        this.loadLibrarianData();
+        this.caricaDatiBibliotecario();
       },
       error: (error) => {
-        console.error('Error approving reservation:', error);
+        console.error('Errore:', error);
       }
     });
   }
 
-  rejectReservation(reservationId: number) {
+  rifiutaPrenotazione(reservationId: number) {
     this.loanService.updateReservationStatus(reservationId, { status: 'rejected' }).subscribe({
       next: () => {
-        this.loadLibrarianData();
+        this.caricaDatiBibliotecario();
       },
       error: (error) => {
-        console.error('Error rejecting reservation:', error);
+        console.error('Errore:', error);
       }
     });
   }
 
-  returnBook(loanId: number) {
+  restituisciLibro(loanId: number) {
     this.loanService.returnBook({ loan_id: loanId }).subscribe({
       next: () => {
-        this.loadMemberData();
+        this.caricaDatiMembro();
       },
       error: (error) => {
-        console.error('Error returning book:', error);
+        console.error('Errore:', error);
       }
     });
   }
 
-  getRoleDisplayName(role: string): string {
-    switch (role) {
-      case 'member': return 'Membro';
-      case 'librarian': return 'Bibliotecario';
-      case 'admin': return 'Amministratore';
-      default: return role;
-    }
+  getRuolo(): string {
+    return this.authService.getRuoloRaw();
   }
+
+  isAutenticato(): boolean {
+    return this.authService.isAutenticato();
+  }
+
+  getUsername(): string {
+    return this.authService.getUsername();  
+  }
+
+
 }

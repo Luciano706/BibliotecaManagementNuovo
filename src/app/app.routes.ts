@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { AuthGuard } from './guards/auth.guard';
+import { ControlloAccesso, AreaPrivataControlloAccesso } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -13,27 +13,27 @@ export const routes: Routes = [
   {
     path: 'home',
     loadComponent: () => import('./home/home.page').then((m) => m.HomePage),
-    canActivate: [AuthGuard]
+    canActivate: [ControlloAccesso]
   },
   {
     path: 'catalog',
     loadComponent: () => import('./catalog/catalog.page').then(m => m.CatalogPage),
-    canActivate: [AuthGuard]
+    canActivate: [ControlloAccesso]
   },
   {
     path: 'libraries',
     loadComponent: () => import('./libraries/libraries.page').then(m => m.LibrariesPage),
-    canActivate: [AuthGuard]
+    canActivate: [ControlloAccesso]
   },
   {
     path: 'dashboard',
     loadComponent: () => import('./dashboard/dashboard.page').then(m => m.DashboardPage),
-    canActivate: [AuthGuard]
+    canActivate: [ControlloAccesso]
   },
   {
     path: 'manage-books',
     loadComponent: () => import('./manage-books/manage-books.page').then(m => m.ManageBooksPage),
-    canActivate: [AuthGuard]
+    canActivate: [ControlloAccesso, AreaPrivataControlloAccesso]
   },
   {
     path: '',

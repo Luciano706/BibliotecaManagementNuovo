@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { 
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, 
   IonMenuButton, IonButton, IonIcon,
-  IonItem, IonLabel, IonBadge, 
+  IonItem, IonBadge, 
   IonSpinner, IonSelect, IonSelectOption, IonToast
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -35,7 +35,7 @@ import { CreateLoanRequest, CreateReservationRequest } from '../models/loan.mode
     FormsModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
     IonMenuButton, IonButton, IonIcon,
-    IonItem, IonLabel, IonBadge,
+    IonItem, IonBadge,
     IonSpinner, IonSelect, IonSelectOption, IonToast
   ]
 })
@@ -166,7 +166,7 @@ export class CatalogPage implements OnInit {
       return;
     }
 
-    const currentUser = this.authService.getCurrentUser();
+    const currentUser = this.authService.ottieniUtenteAttuale();
     if (!currentUser) {
       this.showToastMessage('Devi essere loggato per richiedere un prestito', 'warning');
       return;
@@ -206,7 +206,7 @@ export class CatalogPage implements OnInit {
       return;
     }
 
-    const currentUser = this.authService.getCurrentUser();
+    const currentUser = this.authService.ottieniUtenteAttuale();
     if (!currentUser) {
       this.showToastMessage('Devi essere loggato per prenotare un libro', 'warning');
       return;
