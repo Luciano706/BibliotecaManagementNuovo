@@ -55,6 +55,11 @@ export class AuthService {
     localStorage.removeItem('timeLogin');
     this.utenteAttualeSubject.next(null);
     this.loggatoSubject.next(false);
+    this.cancellaCookie('session');
+  }
+
+  private cancellaCookie(name: string): void {
+    document.cookie = `${name}=; Max-Age=0; path=/;`;
   }
 
   private getCookie(name: string): string | null{
@@ -72,15 +77,14 @@ export class AuthService {
 
 
 
-  checkValiditaSessione(): boolean {
+  checkValiditaSessione(): boolean { //RIVEDERE
     const timeLogin = localStorage.getItem('timeLogin');
     if (timeLogin) {
       const loginTime = parseInt(timeLogin, 10);
-      const currentTime = Date.now();
-      const sessionDuration = currentTime - loginTime;
-      const sessionTimeout = 3 * 60 * 60 * 1000; // 3 ore in millisecondi
+      const durataSessione = Date.now() - loginTime;
+      const timeOut = 3 * 60 * 60 * 1000; // 3 ore in millisecondi
 
-      if (sessionDuration > sessionTimeout && !(this.getCookie('session')=== undefined || this.getCookie('session')=== null || this.getCookie('session')==="")) {
+      if (durataSessione > timeOut) {
         this.logout();
         return false;
       }
