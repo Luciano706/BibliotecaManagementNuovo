@@ -40,9 +40,8 @@
 
   <div class="dashboard-container" *ngIf="!isLoading && isAutenticato()">    <!-- Member Dashboard -->
     <div *ngIf="getRuolo() === 'member'" class="member-section">
-      <!-- Segment Navigation -->
       <div class="segment-container">
-        <ion-segment [(ngModel)]="selectedSegment" class="modern-segment">
+        <ion-segment [(ngModel)]="selezione" class="modern-segment">
           <ion-segment-button value="loans" class="segment-btn">
             <ion-icon name="book-outline"></ion-icon>
             <ion-label>Prestiti</ion-label>
@@ -55,22 +54,22 @@
       </div>
 
       <!-- Member Loans -->
-      <div *ngIf="selectedSegment === 'loans'" class="content-section">
+      <div *ngIf="selezione === 'loans'" class="content-section">
         <div class="section-header">
           <h2>I Tuoi Prestiti</h2>
           <p>Gestisci e monitora i tuoi libri in prestito</p>
         </div>
         
         <div class="cards-container">
-          <div *ngFor="let loan of memberLoans" class="modern-card loan-card">
+          <div *ngFor="let prestito of prestitiMembro" class="modern-card loan-card">
             <div class="card-header">
               <div class="card-icon">
                 <ion-icon name="book-outline"></ion-icon>
               </div>
               <div class="card-title-section">
-                <h3>{{ loan.title }}</h3>
-                <ion-badge [color]="ottieniColorePerStato(loan.status)" class="status-badge">
-                  {{ ottieniStato(loan.status) }}
+                <h3>{{ prestito.title }}</h3>
+                <ion-badge [color]="ottieniColorePerStato(prestito.status)" class="status-badge">
+                  {{ ottieniStato(prestito.status) }}
                 </ion-badge>
               </div>
             </div>
@@ -81,31 +80,31 @@
                   <ion-icon name="library-outline"></ion-icon>
                   <div>
                     <span class="label">Biblioteca</span>
-                    <span class="value">{{ loan.library_name }}</span>
+                    <span class="value">{{ prestito.library_name }}</span>
                   </div>
                 </div>
                 <div class="info-item">
                   <ion-icon name="calendar-outline"></ion-icon>
                   <div>
                     <span class="label">Data Prestito</span>
-                    <span class="value">{{ loan.loan_date | date }}</span>
+                    <span class="value">{{ prestito.loan_date | date }}</span>
                   </div>
                 </div>
                 <div class="info-item">
                   <ion-icon name="time-outline"></ion-icon>
                   <div>
                     <span class="label">Scadenza</span>
-                    <span class="value">{{ loan.due_date | date }}</span>
+                    <span class="value">{{ prestito.due_date | date }}</span>
                   </div>
                 </div>
               </div>
               
-              <div class="card-actions" *ngIf="loan.status === 'approved' && !loan.return_date">
+              <div class="card-actions" *ngIf="prestito.status === 'approved' && !prestito.return_date">
                 <ion-button 
                   expand="block" 
                   color="success"
                   class="modern-button"
-                  (click)="restituisciLibro(loan.id)">
+                  (click)="restituisciLibro(prestito.id)">
                   <ion-icon name="return-down-back" slot="start"></ion-icon>
                   Restituisci Libro
                 </ion-button>
@@ -114,7 +113,7 @@
           </div>
         </div>
 
-        <div *ngIf="memberLoans.length === 0" class="empty-state">
+        <div *ngIf="prestitiMembro.length === 0" class="empty-state">
           <div class="empty-icon">
             <ion-icon name="book-outline"></ion-icon>
           </div>
@@ -124,14 +123,14 @@
       </div>
 
       <!-- Member Reservations -->
-      <div *ngIf="selectedSegment === 'reservations'" class="content-section">
+      <div *ngIf="selezione === 'reservations'" class="content-section">
         <div class="section-header">
           <h2>Le Tue Prenotazioni</h2>
           <p>Monitora lo stato delle tue prenotazioni</p>
         </div>
         
         <div class="cards-container">
-          <div *ngFor="let reservation of memberReservations" class="modern-card reservation-card">
+          <div *ngFor="let reservation of prenotazioniMembro" class="modern-card reservation-card">
             <div class="card-header">
               <div class="card-icon reservation-icon">
                 <ion-icon name="time-outline"></ion-icon>
@@ -165,7 +164,7 @@
           </div>
         </div>
 
-        <div *ngIf="memberReservations.length === 0" class="empty-state">
+        <div *ngIf="prenotazioniMembro.length === 0" class="empty-state">
           <div class="empty-icon">
             <ion-icon name="time-outline"></ion-icon>
           </div>
@@ -177,7 +176,7 @@
 
       <!-- Librarian/Admin Dashboard -->
       <div *ngIf="getRuolo() === 'librarian' || getRuolo() === 'admin'">
-        <ion-segment [(ngModel)]="selectedSegment">
+        <ion-segment [(ngModel)]="selezione">
           <ion-segment-button value="loans">
             <ion-label>Prestiti in Attesa</ion-label>
           </ion-segment-button>
@@ -187,8 +186,8 @@
         </ion-segment>
 
         <!-- Pending Loans -->
-        <div *ngIf="selectedSegment === 'loans'">
-          <ion-card *ngFor="let loan of pendingLoans" class="pending-card">
+        <div *ngIf="selezione === 'loans'">
+          <ion-card *ngFor="let loan of prestitiAttesa" class="pending-card">
             <ion-card-header>
               <ion-card-title>
                 <ion-icon name="hourglass"></ion-icon>
@@ -237,7 +236,7 @@
             </ion-card-content>
           </ion-card>
 
-          <div *ngIf="pendingLoans.length === 0" class="empty-state">
+          <div *ngIf="prestitiAttesa.length === 0" class="empty-state">
             <ion-icon name="checkmark-circle-outline"></ion-icon>
             <h2>Nessun prestito in attesa</h2>
             <p>Tutte le richieste sono state processate.</p>
@@ -245,8 +244,8 @@
         </div>
 
         <!-- Pending Reservations -->
-        <div *ngIf="selectedSegment === 'reservations'">
-          <ion-card *ngFor="let reservation of pendingReservations" class="pending-card">
+        <div *ngIf="selezione === 'reservations'">
+          <ion-card *ngFor="let reservation of prenotazioniAttesa" class="pending-card">
             <ion-card-header>
               <ion-card-title>
                 <ion-icon name="hourglass"></ion-icon>
@@ -295,7 +294,7 @@
             </ion-card-content>
           </ion-card>
 
-          <div *ngIf="pendingReservations.length === 0" class="empty-state">
+          <div *ngIf="prenotazioniAttesa.length === 0" class="empty-state">
             <ion-icon name="checkmark-circle-outline"></ion-icon>            <h2>Nessuna prenotazione in attesa</h2>
             <p>Tutte le richieste sono state processate.</p>
           </div>

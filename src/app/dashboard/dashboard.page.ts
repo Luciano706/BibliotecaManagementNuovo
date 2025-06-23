@@ -38,13 +38,13 @@ import { Loan, Reservation } from '../models/loan.model';
   ]
 })
 export class DashboardPage implements OnInit {
-  selectedSegment = 'loans';
+  selezione = 'loans';
   
-  memberLoans: Loan[] = [];
-  memberReservations: Reservation[] = [];
+  prestitiMembro: Loan[] = [];
+  prenotazioniMembro: Reservation[] = [];
   
-  pendingLoans: Loan[] = [];
-  pendingReservations: Reservation[] = [];
+  prestitiAttesa: Loan[] = [];
+  prenotazioniAttesa: Reservation[] = [];
   
   isLoading = true;
 
@@ -65,16 +65,12 @@ export class DashboardPage implements OnInit {
     });
   }
   ngOnInit() {
-
-    if (this.authService.isAutenticato()) {
-      this.caricaDatiDashboard();
-    }
-
+    this.caricaDatiDashboard();
   }
 
   caricaDatiDashboard() {
     if (!this.authService.isAutenticato()) return;
-
+    console.log(this.authService.getRuoloRaw());
     if (this.authService.getRuoloRaw() === 'member') {
       this.caricaDatiMembro();
     } else {
@@ -83,9 +79,9 @@ export class DashboardPage implements OnInit {
   }
 
   caricaDatiMembro() {
-    this.loanService.getMemberLoans().subscribe({
+    this.loanService.ottieniPrestitiMembro().subscribe({
       next: (loans) => {
-        this.memberLoans = loans;
+        this.prestitiMembro = loans;
         this.isLoading = false;
       },
       error: (error) => {
@@ -94,9 +90,9 @@ export class DashboardPage implements OnInit {
       }
     });
 
-    this.loanService.getMemberReservations().subscribe({
+    this.loanService.ottieniPrenotazioniMembro().subscribe({
       next: (reservations) => {
-        this.memberReservations = reservations;
+        this.prenotazioniMembro = reservations;
       },
       error: (error) => {
         console.error('Errore:', error);
@@ -105,9 +101,9 @@ export class DashboardPage implements OnInit {
   }
 
   caricaDatiBibliotecario() {
-    this.loanService.getPendingLoans().subscribe({
+    this.loanService.ottieniPrestitiAttesa().subscribe({
       next: (loans) => {
-        this.pendingLoans = loans;
+        this.prestitiAttesa = loans;
         this.isLoading = false;
       },
       error: (error) => {
@@ -116,9 +112,9 @@ export class DashboardPage implements OnInit {
       }
     });
 
-    this.loanService.getPendingReservations().subscribe({
+    this.loanService.ottieniPrenotazioniAttesa().subscribe({
       next: (reservations) => {
-        this.pendingReservations = reservations;
+        this.prenotazioniAttesa = reservations;
       },
       error: (error) => {
         console.error('Errore:', error);
@@ -126,8 +122,8 @@ export class DashboardPage implements OnInit {
     });
   }
 
-  ottieniColorePerStato(status: string): string {
-    switch (status) {
+  ottieniColorePerStato(stato: string): string {
+    switch (stato) {
       case 'approved': return 'success';
       case 'rejected': return 'danger';
       case 'pending': return 'warning';
@@ -138,20 +134,20 @@ export class DashboardPage implements OnInit {
     }
   }
 
-  ottieniStato(status: string): string {
-    switch (status) {
+  ottieniStato(stato: string): string {
+    switch (stato) {
       case 'approved': return 'Approvato';
       case 'rejected': return 'Rifiutato';
       case 'pending': return 'In Attesa';
       case 'active': return 'Attivo';
       case 'completed': return 'Completato';
       case 'expired': return 'Scaduto';
-      default: return status;
+      default: return stato;
     }
   }
 
-  accettaPrestito(loanId: number) {
-    this.loanService.updateLoanStatus(loanId, { status: 'approved' }).subscribe({
+  accettaPrestito(idPrestito: number) {
+    this.loanService.aggiornaStatoPrestito(idPrestito, { status: 'approved' }).subscribe({
       next: () => {
         this.caricaDatiBibliotecario();
       },
@@ -161,8 +157,8 @@ export class DashboardPage implements OnInit {
     });
   }
 
-  rifiutaPrestito(loanId: number) {
-    this.loanService.updateLoanStatus(loanId, { status: 'rejected' }).subscribe({
+  rifiutaPrestito(idPrestito: number) {
+    this.loanService.aggiornaStatoPrestito(idPrestito, { status: 'rejected' }).subscribe({
       next: () => {
         this.caricaDatiBibliotecario();
       },
@@ -172,8 +168,8 @@ export class DashboardPage implements OnInit {
     });
   }
 
-  accettaPrenotazione(reservationId: number) {
-    this.loanService.updateReservationStatus(reservationId, { status: 'approved' }).subscribe({
+  accettaPrenotazione(idPrenotazione: number) {
+    this.loanService.aggiornaStatoPrenotazione(idPrenotazione, { status: 'approved' }).subscribe({
       next: () => {
         this.caricaDatiBibliotecario();
       },
@@ -183,8 +179,8 @@ export class DashboardPage implements OnInit {
     });
   }
 
-  rifiutaPrenotazione(reservationId: number) {
-    this.loanService.updateReservationStatus(reservationId, { status: 'rejected' }).subscribe({
+  rifiutaPrenotazione(idPrenotazione: number) {
+    this.loanService.aggiornaStatoPrenotazione(idPrenotazione, { status: 'rejected' }).subscribe({
       next: () => {
         this.caricaDatiBibliotecario();
       },
@@ -194,8 +190,8 @@ export class DashboardPage implements OnInit {
     });
   }
 
-  restituisciLibro(loanId: number) {
-    this.loanService.returnBook({ loan_id: loanId }).subscribe({
+  restituisciLibro(idPrestito: number) {
+    this.loanService.restituisciLibro({ loan_id: idPrestito }).subscribe({
       next: () => {
         this.caricaDatiMembro();
       },

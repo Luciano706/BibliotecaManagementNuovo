@@ -18,67 +18,67 @@ export class LoanService {
   constructor(private http: HttpClient) { }
 
   // Create loan
-  createLoan(loanData: CreateLoanRequest): Observable<any> {
-    return this.http.post('/api/loan', loanData);
+  creaPrestito(datiPrestito: CreateLoanRequest): Observable<any> {
+    return this.http.post('/api/loan', datiPrestito);
   }
 
   // Return book
-  returnBook(returnData: ReturnBookRequest): Observable<any> {
-    return this.http.post('/api/return', returnData);
+  restituisciLibro(datiRestituzione: ReturnBookRequest): Observable<any> {
+    return this.http.post('/api/return', datiRestituzione);
   }
 
   // Create reservation
-  createReservation(reservationData: CreateReservationRequest): Observable<any> {
-    return this.http.post('/api/reserve', reservationData);
+  creaPrenotazione(datiPrenotazione: CreateReservationRequest): Observable<any> {
+    return this.http.post('/api/reserve', datiPrenotazione);
   }
 
-  // Get all loans (librarian/admin)
-  getAllLoans(): Observable<Loan[]> {
+  
+  ottieniTuttiPrestiti(): Observable<Loan[]> { //LIBRARIAN/ADMIN
     return this.http.get<Loan[]>('/api/loans');
   }
 
   // Get all reservations (librarian/admin)
-  getAllReservations(): Observable<Reservation[]> {
+  ottieniTuttePrenotazioni(): Observable<Reservation[]> { //LIBRARIAN/ADMIN
     return this.http.get<Reservation[]>('/api/reservations');
   }
 
   // Get member loans
-  getMemberLoans(): Observable<Loan[]> {
+  ottieniPrestitiMembro(): Observable<Loan[]> { //MEMBER
     return this.http.get<Loan[]>('/api/member/loans');
   }
 
   // Get member active loans
-  getMemberActiveLoans(): Observable<Loan[]> {
+  ottieniPrestitiAttiviMembro(): Observable<Loan[]> { //MEMBER
     return this.http.get<Loan[]>('/api/member/loans/active');
   }
 
   // Get member reservations
-  getMemberReservations(): Observable<Reservation[]> {
+  ottieniPrenotazioniMembro(): Observable<Reservation[]> { //MEMBER
     return this.http.get<Reservation[]>('/api/member/reservations');
   }
 
   // Get member active reservations
-  getMemberActiveReservations(): Observable<Reservation[]> {
+  ottieniPrenotazioniAttiveMembro(): Observable<Reservation[]> { //MEMBER
     return this.http.get<Reservation[]>('/api/member/reservations/active');
   }
 
   // Update loan status
-  updateLoanStatus(loanId: number, status: UpdateStatusRequest): Observable<any> {
-    return this.http.put(`/api/loans/${loanId}/status`, status);
+  aggiornaStatoPrestito(idPrestito: number, status: UpdateStatusRequest): Observable<any> { //LIBRARIAN/ADMIN
+    return this.http.put(`/api/loans/${idPrestito}/status`, status);
   }
 
   // Update reservation status
-  updateReservationStatus(reservationId: number, status: UpdateStatusRequest): Observable<any> {
-    return this.http.put(`/api/reservations/${reservationId}/status`, status);
+  aggiornaStatoPrenotazione(idPrenotazione: number, status: UpdateStatusRequest): Observable<any> { //LIBRARIAN/ADMIN
+    return this.http.put(`/api/reservations/${idPrenotazione}/status`, status);
   }
 
   // Get pending loans
-  getPendingLoans(): Observable<Loan[]> {
+  ottieniPrestitiAttesa(): Observable<Loan[]> { 
     return this.http.get<Loan[]>('/api/loans/pending');
   }
 
   // Get pending reservations
-  getPendingReservations(): Observable<Reservation[]> {
+  ottieniPrenotazioniAttesa(): Observable<Reservation[]> {
     return this.http.get<Reservation[]>('/api/reservations/pending');
   }
 }

@@ -71,7 +71,7 @@ export class RegisterPage implements OnInit {
   }
 
   caricaBiblioteche() {
-    this.libraryService.getLibraries().subscribe({
+    this.libraryService.ottieniBiblioteche().subscribe({
       next: (response) => {
         if (response.status === 'success' && response.data) {
           this.libraries = response.data;

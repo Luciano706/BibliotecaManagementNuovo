@@ -171,7 +171,7 @@ export class ManageBooksPage implements OnInit {
     return '';
   }
   loadLibraries() {
-    this.libraryService.getLibraries().subscribe({
+    this.libraryService.ottieniBiblioteche().subscribe({
       next: (response) => {
         if (response.status === 'success' && response.data) {
           this.libraries = response.data;
@@ -186,7 +186,7 @@ export class ManageBooksPage implements OnInit {
 
   loadBooks() {
     this.isLoadingBooks = true;
-    this.libraryService.getAllBooks().subscribe({
+    this.libraryService.ottieniTuttiLibri().subscribe({
       next: (response) => {
         this.isLoadingBooks = false;
         if (response.status === 'success' && response.data) {
@@ -204,7 +204,7 @@ export class ManageBooksPage implements OnInit {
     if (this.addBookForm.valid) {
       this.isSubmitting = true;
       
-      this.libraryService.addBook(this.addBookForm.value).subscribe({
+      this.libraryService.aggiungiLibro(this.addBookForm.value).subscribe({
         next: (response) => {
           this.isSubmitting = false;
           this.showToastMessage('Libro aggiunto al catalogo con successo!', 'success');
@@ -225,7 +225,7 @@ export class ManageBooksPage implements OnInit {
       
       if (formValue.action === 'existing') {
         // Add existing book to library
-        this.libraryService.addBookToLibrary(
+        this.libraryService.aggiungiLibroBiblioteca(
           formValue.library_id,
           formValue.book_id,
           formValue.copies
@@ -250,7 +250,7 @@ export class ManageBooksPage implements OnInit {
           copies: formValue.copies
         };
         
-        this.libraryService.addNewBookToLibrary(formValue.library_id, bookData).subscribe({
+        this.libraryService.aggiungiNuovoLibroBiblioteca(formValue.library_id, bookData).subscribe({
           next: (response) => {
             this.isSubmitting = false;
             this.showToastMessage('Nuovo libro aggiunto alla biblioteca con successo!', 'success');

@@ -13,11 +13,11 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="modern-content">
-  <!-- Hero Section -->
+  
   <div class="hero-section">
     <div class="hero-content">
       <h1 class="hero-title">Esplora il Catalogo</h1>
-      <p class="hero-subtitle">Scopri migliaia di libri disponibili nelle nostre biblioteche</p>
+      <p class="hero-subtitle">Scopri i libri disponibili nelle nostre biblioteche</p>
     </div>
     <div class="hero-decoration">
       <div class="decoration-circle circle-1"></div>
@@ -25,40 +25,40 @@
     </div>
   </div>
 
-  <!-- Loading State -->
+  
   <div class="loading-section" *ngIf="isLoading">
     <div class="loading-spinner">
       <ion-spinner name="crescent"></ion-spinner>
     </div>
     <p class="loading-text">Caricamento catalogo...</p>
   </div>
-  <!-- Books Grid -->
+  
   <div class="catalog-container" *ngIf="!isLoading">
     <div class="books-grid">
-      <div class="book-card modern-card" *ngFor="let book of books">
+      <div class="book-card modern-card" *ngFor="let libro of libri">
         <div class="card-header">
           <div class="book-icon">
             <ion-icon name="book-outline"></ion-icon>
           </div>
           <div class="availability-indicator">
-            <ion-badge color="primary" *ngIf="getAvailableLibrariesForBook(book.id).length > 0">
-              {{ getAvailableLibrariesForBook(book.id).length }} biblioteche
+            <ion-badge color="primary" *ngIf="ottieniBiblioteceDisponibiliPerLibro(libro.id).length > 0">
+              {{ ottieniBiblioteceDisponibiliPerLibro(libro.id).length }} biblioteche
             </ion-badge>
-            <ion-badge color="medium" *ngIf="getAvailableLibrariesForBook(book.id).length === 0">
+            <ion-badge color="medium" *ngIf="ottieniBiblioteceDisponibiliPerLibro(libro.id).length === 0">
               Non disponibile
             </ion-badge>
           </div>
         </div>
         
         <div class="card-content">
-          <h3 class="book-title">{{ book.title }}</h3>
+          <h3 class="book-title">{{ libro.title }}</h3>
           
           <div class="book-info">
             <div class="info-item">
               <ion-icon name="person-outline"></ion-icon>
               <div>
                 <span class="label">Autore</span>
-                <span class="value">{{ book.author }}</span>
+                <span class="value">{{ libro.author }}</span>
               </div>
             </div>
             
@@ -66,7 +66,7 @@
               <ion-icon name="library-outline"></ion-icon>
               <div>
                 <span class="label">Categoria</span>
-                <span class="value">{{ book.category }}</span>
+                <span class="value">{{ libro.category }}</span>
               </div>
             </div>
             
@@ -74,11 +74,11 @@
               <ion-icon name="barcode-outline"></ion-icon>
               <div>
                 <span class="label">ISBN</span>
-                <span class="value">{{ book.isbn }}</span>
+                <span class="value">{{ libro.isbn }}</span>
               </div>
             </div>
-          </div>          <!-- Library Selection Section -->
-          <div class="library-selection" *ngIf="libraries.length > 0">
+          </div>          
+          <div class="library-selection" *ngIf="biblioteche.length > 0">
             <div class="selection-header">
               <ion-icon name="location-outline"></ion-icon>
               <span class="selection-label">Seleziona Biblioteca</span>
@@ -86,58 +86,59 @@
             
             <ion-item class="library-select-item">
               <ion-select 
-                [(ngModel)]="selectedLibraries[book.id]"
-                (ionChange)="onLibrarySelectionChange(book.id, $event.detail.value)"
+                [(ngModel)]="bibliotecheSelezionate[libro.id]"
+                (ionChange)="cambiaBiblioteca(libro.id, $event.detail.value)"
                 placeholder="Scegli biblioteca..."
                 interface="popover">
                 <ion-select-option 
-                  *ngFor="let library of getAvailableLibrariesForBook(book.id)" 
+                  *ngFor="let library of ottieniBiblioteceDisponibiliPerLibro(libro.id)" 
                   [value]="library.id">
-                  {{ library.name }} ({{ getAvailableCopiesForBookInLibrary(book.id, library.id) }} copie)
+                  {{ library.name }} ({{ ottieniNumeroCopieLibroDaBiblioteca(libro.id, library.id) }} copie)
                 </ion-select-option>
               </ion-select>
             </ion-item>
 
-            <!-- Copies info for selected library -->
-            <div class="copies-info-card" *ngIf="selectedLibraries[book.id]">
+            
+            <div class="copies-info-card" *ngIf="bibliotecheSelezionate[libro.id]">
               <div class="copies-details">
                 <ion-icon name="copy-outline"></ion-icon>
-                <span>{{ getAvailableCopiesForBookInLibrary(book.id, selectedLibraries[book.id]) }} copie disponibili</span>
+                <span>{{ ottieniNumeroCopieLibroDaBiblioteca(libro.id, bibliotecheSelezionate[libro.id]) }} copie disponibili</span>
               </div>
             </div>
           </div>
-                <!-- Action Buttons -->
-          <div class="card-actions" *ngIf="libraries.length > 0">
+                
+          <div class="card-actions" *ngIf="biblioteche.length > 0">
             <ion-button 
               expand="block" 
               class="modern-button primary-btn"
-              [disabled]="!canRequestLoan(book.id) || isProcessingAction[book.id]"
-              (click)="requestLoan(book)">
-              <ion-spinner name="crescent" *ngIf="isProcessingAction[book.id]"></ion-spinner>
-              <ion-icon name="download-outline" slot="start" *ngIf="!isProcessingAction[book.id]"></ion-icon>
-              {{ isProcessingAction[book.id] ? 'Elaborazione...' : 'Prendi in Prestito' }}
+              [disabled]="!abilitaPrestito(libro.id) || isProcessingAction[libro.id]"
+              (click)="richiediPrestito(libro)">
+              <ion-spinner name="crescent" *ngIf="isProcessingAction[libro.id]"></ion-spinner>
+              <ion-icon name="download-outline" slot="start" *ngIf="!isProcessingAction[libro.id]"></ion-icon>
+              {{ isProcessingAction[libro.id] ? 'Elaborazione...' : 'Prendi in Prestito' }}
             </ion-button>
             
             <ion-button 
               expand="block" 
               class="modern-button secondary-btn"
               fill="outline"
-              [disabled]="!canRequestReservation(book.id) || isProcessingAction[book.id]"
-              (click)="requestReservation(book)">
-              <ion-spinner name="crescent" *ngIf="isProcessingAction[book.id]"></ion-spinner>
-              <ion-icon name="bookmark-outline" slot="start" *ngIf="!isProcessingAction[book.id]"></ion-icon>
-              {{ isProcessingAction[book.id] ? 'Elaborazione...' : 'Prenota' }}
+              [disabled]="!abilitaPrenotazione(libro.id) || isProcessingAction[libro.id]"
+              (click)="richiediPrenotazione(libro)">
+              <ion-spinner name="crescent" *ngIf="isProcessingAction[libro.id]"></ion-spinner>
+              <ion-icon name="bookmark-outline" slot="start" *ngIf="!isProcessingAction[libro.id]"></ion-icon>
+              {{ isProcessingAction[libro.id] ? 'Elaborazione...' : 'Prenota' }}
             </ion-button>
-          </div>          <!-- No Libraries Available -->
-          <div class="no-libraries-message" *ngIf="libraries.length === 0">
+          </div>          
+          <div class="no-libraries-message" *ngIf="biblioteche.length === 0">
             <ion-icon name="alert-circle-outline"></ion-icon>
             <span>Nessuna biblioteca disponibile nel sistema</span>
           </div>
         </div>
-      </div>    </div>
+      </div>    
+    </div>
 
-    <!-- Empty State -->
-    <div class="empty-state" *ngIf="!isLoading && books.length === 0">
+    
+    <div class="empty-state" *ngIf="!isLoading && libri.length === 0">
       <div class="empty-icon">
         <ion-icon name="book-outline"></ion-icon>
       </div>

@@ -51,7 +51,7 @@ export class LibraryBooksModalComponent implements OnInit {
     this.isLoading = true;
     
     try {
-      const response = await this.libraryService.getLibraryBooks(this.library.id).toPromise();
+      const response = await this.libraryService.ottieniLibriBiblioteca(this.library.id).toPromise();
       if (response && response.status === 'success') {
         this.books = response.data || [];
         this.filteredBooks = [...this.books];
@@ -126,7 +126,7 @@ export class LibraryBooksModalComponent implements OnInit {
       };
 
       // Effettua la richiesta di prestito
-      const response = await this.loanService.createLoan(loanData).toPromise();
+      const response = await this.loanService.creaPrestito(loanData).toPromise();
       
       if (response && response.status === 'success') {
         this.showToast(`Prestito richiesto con successo per "${book.title}"`, 'success');

@@ -11,41 +11,35 @@ export class LibraryService {
 
   constructor(private http: HttpClient) { }
 
-  // Get all libraries
-  getLibraries(): Observable<ApiResponse<Library[]>> {
+  ottieniBiblioteche(): Observable<ApiResponse<Library[]>> {
     return this.http.get<ApiResponse<Library[]>>('/api/libraries');
   }
 
-  // Get library details
-  getLibrary(libraryId: number): Observable<ApiResponse<Library>> {
-    return this.http.get<ApiResponse<Library>>(`/api/libraries/${libraryId}`);
+  // NON USATA ANCORA
+  ottieniBiblioteca(idBiblioteca: number): Observable<ApiResponse<Library>> {
+    return this.http.get<ApiResponse<Library>>(`/api/libraries/${idBiblioteca}`);
   }
 
-  // Get books in a library
-  getLibraryBooks(libraryId: number): Observable<ApiResponse<LibraryBook[]>> {
-    return this.http.get<ApiResponse<LibraryBook[]>>(`/api/libraries/${libraryId}/books`);
+  ottieniLibriBiblioteca(idBiblioteca: number): Observable<ApiResponse<LibraryBook[]>> {
+    return this.http.get<ApiResponse<LibraryBook[]>>(`/api/libraries/${idBiblioteca}/books`);
   }
 
-  // Get all books in catalog
-  getAllBooks(): Observable<ApiResponse<Book[]>> {
+  ottieniTuttiLibri(): Observable<ApiResponse<Book[]>> {
     return this.http.get<ApiResponse<Book[]>>('/api/books');
   }
 
-  // Add new book to catalog
-  addBook(book: Partial<Book>): Observable<any> {
+  aggiungiLibro(book: Partial<Book>): Observable<any> {
     return this.http.post('/api/books', book);
   }
 
-  // Add existing book to library
-  addBookToLibrary(libraryId: number, bookId: number, copies: number): Observable<any> {
-    return this.http.post(`/api/libraries/${libraryId}/books`, {
-      book_id: bookId,
-      copies: copies
+  aggiungiLibroBiblioteca(idBiblioteca: number, idLibro: number, copie: number): Observable<any> {
+    return this.http.post(`/api/libraries/${idBiblioteca}/books`, {
+      book_id: idLibro,
+      copies: copie
     });
   }
 
-  // Add new book and copies to library
-  addNewBookToLibrary(libraryId: number, bookData: any): Observable<any> {
-    return this.http.post(`/api/libraries/${libraryId}/books/new`, bookData);
+  aggiungiNuovoLibroBiblioteca(idBiblioteca: number, datiLibro: any): Observable<any> {
+    return this.http.post(`/api/libraries/${idBiblioteca}/books/new`, datiLibro);
   }
 }

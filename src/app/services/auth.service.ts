@@ -159,4 +159,14 @@ export class AuthService {
       return '';
     }
   }
+
+  public getId(): number{
+    const jsonUser = localStorage.getItem('utenteAttuale');
+    
+    if (jsonUser) {
+      return parseInt(JSON.parse(jsonUser).id, 10);
+    } else {
+      return -1;
+    } 
+  }
 }
