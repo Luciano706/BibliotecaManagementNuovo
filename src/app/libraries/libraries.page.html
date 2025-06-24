@@ -1,11 +1,14 @@
-<ion-header [translucent]="true">
-  <ion-toolbar class="modern-toolbar">
+<ion-header [translucent]="true" class="modern-header">
+  <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-menu-button class="menu-button"></ion-menu-button>
+      <ion-menu-button></ion-menu-button>
+      <ion-button class="back-button" (click)="tornaAllaHome()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
     </ion-buttons>
-    <ion-title class="page-title">
-      <div class="title-content">
-        <ion-icon name="library-outline" class="title-icon"></ion-icon>
+    <ion-title class="header-title">
+      <div class="logo-section">
+        <ion-icon name="library-outline" class="logo-icon"></ion-icon>
         <span>Biblioteche</span>
       </div>
     </ion-title>
@@ -14,7 +17,7 @@
 
 <ion-content [fullscreen]="true" class="modern-content">
   <div class="libraries-container">
-    <!-- Loading State -->
+    <!-- Caricamento -->
     <div *ngIf="isLoading" class="loading-section">
       <div class="loading-content">
         <ion-icon name="library-outline" class="loading-icon"></ion-icon>
@@ -25,10 +28,10 @@
       </div>
     </div>
 
-    <!-- Libraries Grid -->
+    <!-- Lista di biblioteche -->
     <ion-grid *ngIf="!isLoading" class="libraries-grid">
       <ion-row>
-        <ion-col size="12" size-md="6" size-lg="4" *ngFor="let library of libraries">
+        <ion-col size="12" size-md="6" size-lg="4" *ngFor="let biblioteca of biblioteche">
           <ion-card class="library-card">
             <div class="card-glow"></div>
             <ion-card-header class="card-header">
@@ -38,7 +41,7 @@
                 </div>
                 <div class="icon-pulse"></div>
               </div>
-              <ion-card-title class="library-title">{{ library.name }}</ion-card-title>
+              <ion-card-title class="library-title">{{ biblioteca.name }}</ion-card-title>
             </ion-card-header>
             
             <ion-card-content class="card-content">
@@ -49,7 +52,7 @@
                   </div>
                   <ion-label class="detail-label">
                     <h3>Indirizzo</h3>
-                    <p>{{ library.address }}</p>
+                    <p>{{ biblioteca.address }}</p>
                   </ion-label>
                 </ion-item>
               </ion-list>
@@ -59,7 +62,7 @@
                   expand="block" 
                   fill="solid" 
                   class="view-books-btn"
-                  (click)="viewLibraryBooks(library)">
+                  (click)="vediLibriBiblioteca(biblioteca)">
                   <ion-icon name="book-outline" slot="start"></ion-icon>
                   <span>Visualizza Libri</span>
                   <div class="btn-shine"></div>
@@ -71,16 +74,15 @@
       </ion-row>
     </ion-grid>
 
-    <!-- Empty State -->
-    <div *ngIf="!isLoading && libraries.length === 0" class="empty-state">
+    <!-- Se non ci sono biblioteche -->
+    <div *ngIf="!isLoading && biblioteche.length === 0" class="empty-state">
       <div class="empty-content">
         <div class="empty-icon-container">
           <ion-icon name="library-outline" class="empty-icon"></ion-icon>
           <div class="icon-bg"></div>
         </div>
         <h2>Nessuna biblioteca disponibile</h2>
-        <p>Non ci sono biblioteche registrate al momento. Contatta l'amministratore per aggiungere nuove biblioteche al sistema.</p>
-      </div>
+        </div>
     </div>
   </div>
 </ion-content>

@@ -71,7 +71,7 @@ export class HomePage implements OnInit, OnDestroy {
   ngOnInit() {
     this.authService.checkValiditaSessione();
     this.userSubscription = this.authService.ottieniUtenteSubject$().subscribe(user => {
-      this.updateogettiMenu();
+      this.aggiornaOgettiMenu();
     });
   }
 
@@ -81,7 +81,7 @@ export class HomePage implements OnInit, OnDestroy {
     }
   }
 
-  private updateogettiMenu() {
+  private aggiornaOgettiMenu() {
     if (!this.authService.isAutenticato()) {
       this.ogettiMenu = [];
       return;

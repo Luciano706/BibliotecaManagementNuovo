@@ -13,7 +13,6 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="modern-content">
-  <!-- Hero Section -->
   <div class="hero-section" *ngIf="isAutenticato()">
     <div class="hero-content">
       <div class="user-avatar">
@@ -29,7 +28,7 @@
     </div>
   </div>
 
-  <!-- Loading State -->
+  <!-- sezione mostrata durante il caricamento della pagina-->
   <div class="loading-section" *ngIf="!isAutenticato()">
     <div class="loading-spinner">
       <ion-spinner name="crescent"></ion-spinner>
@@ -37,25 +36,25 @@
     <p class="loading-text">Caricamento in corso...</p>
   </div>
 
-  <!-- Main Navigation Cards -->
+  <!-- Card per le opzioni -->
   <div class="navigation-section" *ngIf="isAutenticato()">
     
     
     <div class="cards-grid">
-      <div class="nav-card" *ngFor="let item of ogettiMenu; let i = index" 
-           (click)="vai(item.path)"
+      <div class="nav-card" *ngFor="let ogetto of ogettiMenu; let i = index" 
+           (click)="vai(ogetto.path)"
            [style.animation-delay]="(i * 0.1) + 's'">
         <div class="card-background" [ngClass]="'bg-' + (i % 4 + 1)"></div>
         <div class="card-content">
           <div class="card-icon">
-            <ion-icon [name]="item.icon"></ion-icon>
+            <ion-icon [name]="ogetto.icon"></ion-icon>
           </div>
-          <h3 class="card-title">{{ item.title }}</h3>
+          <h3 class="card-title">{{ ogetto.title }}</h3>
           <p class="card-description">
-            <span *ngIf="item.path === '/catalog'">Esplora il catalogo completo dei libri disponibili nelle tue biblioteche</span>
-            <span *ngIf="item.path === '/libraries'">Visualizza e gestisci tutte le biblioteche del sistema</span>
-            <span *ngIf="item.path === '/dashboard'">Monitora i tuoi prestiti, prenotazioni e statistiche personali</span>
-            <span *ngIf="item.path === '/manage-books'">Gestisci l'inventario dei libri e le operazioni amministrative</span>
+            <span *ngIf="ogetto.path === '/catalog'">Esplora il catalogo completo dei libri disponibili nelle tue biblioteche</span>
+            <span *ngIf="ogetto.path === '/libraries'">Visualizza e gestisci tutte le biblioteche del sistema</span>
+            <span *ngIf="ogetto.path === '/dashboard'">Monitora i tuoi prestiti, prenotazioni e statistiche personali</span>
+            <span *ngIf="ogetto.path === '/manage-books'">Gestisci l'inventario dei libri e le operazioni amministrative</span>
           </p>
           <div class="card-arrow">
             <ion-icon name="arrow-forward-outline"></ion-icon>

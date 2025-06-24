@@ -29,7 +29,7 @@ import { Library } from '../models/library.model';
 export class RegisterPage implements OnInit {
   registerForm: FormGroup;
   isLoading = false;
-  showPassword = false;
+  mostraPassword = false;
   toastMessage = '';
   showToast = false;
   libraries: Library[] = [];
@@ -49,12 +49,16 @@ export class RegisterPage implements OnInit {
     this.registerForm = this.formBuilder.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [
+        Validators.required, 
+        Validators.minLength(6),
+        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{6,}$/)
+      ]],
       role: ['member', [Validators.required]],
       library_id: ['']
     });
 
-    // Monitor role changes to set library validation
+    
     this.registerForm.get('role')?.valueChanges.subscribe(role => {
       const libraryControl = this.registerForm.get('library_id');
       if (role === 'librarian') {
@@ -84,7 +88,7 @@ export class RegisterPage implements OnInit {
   }
 
   mostraNascondiPassword() {
-    this.showPassword = !this.showPassword;
+    this.mostraPassword = !this.mostraPassword;
   }
 
   onSubmit() {

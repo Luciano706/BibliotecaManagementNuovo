@@ -19,8 +19,10 @@ import {
   analyticsOutline,
   personCircleOutline,
   libraryOutline,
-  calendarOutline
+  calendarOutline,
+  arrowBackOutline 
 } from 'ionicons/icons';
+import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { LoanService } from '../services/loan.service';
 import { Loan, Reservation } from '../models/loan.model';
@@ -50,8 +52,10 @@ export class DashboardPage implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private loanService: LoanService
-  ) {    addIcons({ 
+    private loanService: LoanService,
+    private router: Router  
+  ) {    
+    addIcons({ 
       bookOutline, 
       timeOutline, 
       checkmarkCircleOutline, 
@@ -61,7 +65,8 @@ export class DashboardPage implements OnInit {
       analyticsOutline,
       personCircleOutline,
       libraryOutline,
-      calendarOutline
+      calendarOutline,
+      arrowBackOutline 
     });
   }
   ngOnInit() {
@@ -199,6 +204,10 @@ export class DashboardPage implements OnInit {
         console.error('Errore:', error);
       }
     });
+  }
+
+  tornaAllaHome() {
+    this.router.navigate(['/home']);
   }
 
   getRuolo(): string {

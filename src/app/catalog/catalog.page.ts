@@ -18,13 +18,15 @@ import {
   downloadOutline,
   bookmarkOutline,
   chevronDownOutline,
-  alertCircleOutline
+  alertCircleOutline,
+  arrowBackOutline 
 } from 'ionicons/icons';
 import { LibraryService } from '../services/library.service';
 import { LoanService } from '../services/loan.service';
 import { Book, Library, LibraryBook } from '../models/library.model';
 import { AuthService } from '../services/auth.service';
 import { CreateLoanRequest, CreateReservationRequest } from '../models/loan.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-catalog',
@@ -57,7 +59,8 @@ export class CatalogPage implements OnInit {
   constructor(
     private libraryService: LibraryService,
     private loanService: LoanService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router  // Aggiungi il router
   ) {
     addIcons({ 
       bookOutline, 
@@ -69,7 +72,8 @@ export class CatalogPage implements OnInit {
       downloadOutline,
       bookmarkOutline,
       chevronDownOutline,
-      alertCircleOutline
+      alertCircleOutline,
+      arrowBackOutline  // Aggiungi questa icona
     });
   }  ngOnInit() {
     this.caricaBiblioteche();
@@ -185,7 +189,6 @@ ottieniBiblioteceDisponibiliPerLibro(idLibro: number): Library[] {
       next: (response) => {
         if (response.status === 'success') {
           this.mostraToast('Prestito richiesto con successo!', 'success');
-          // Update local copies count
           if (this.copieLibroPerBiblioteca[libro.id] && this.copieLibroPerBiblioteca[libro.id][idBibliotecaSelezionata] > 0) {
             this.copieLibroPerBiblioteca[libro.id][idBibliotecaSelezionata]--;
           }
@@ -240,5 +243,10 @@ ottieniBiblioteceDisponibiliPerLibro(idLibro: number): Library[] {
   onToastDismiss() {
     this.showToast = false;
     window.location.reload();
+  }
+
+  // Aggiungi questo metodo
+  tornaAllaHome() {
+    this.router.navigate(['/home']);
   }
 }

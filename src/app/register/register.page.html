@@ -79,7 +79,7 @@
           <div class="input-container">
             <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon>
             <ion-input 
-              [type]="showPassword ? 'text' : 'password'"
+              [type]="mostraPassword ? 'text' : 'password'"
               formControlName="password"
               placeholder="Scegli una password"
               class="custom-input">
@@ -88,7 +88,7 @@
               fill="clear" 
               class="password-toggle"
               (click)="mostraNascondiPassword()">
-              <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+              <ion-icon [name]="mostraPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
             </ion-button>
           </div>
           <div class="error-message" *ngIf="registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched">
@@ -96,6 +96,9 @@
           </div>
           <div class="error-message" *ngIf="registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched">
             Password deve essere almeno 6 caratteri
+          </div>
+          <div class="error-message" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.errors?.['pattern']">
+            La password deve contenere almeno: una lettera maiuscola, una minuscola, un numero e un carattere speciale
           </div>
         </div>
 

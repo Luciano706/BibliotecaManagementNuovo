@@ -408,6 +408,28 @@
   }
 }
 
+.back-button {
+  --border-radius: 50%;
+  --padding-start: 0;
+  --padding-end: 0;
+  width: 36px;
+  height: 36px;
+  margin-left: 8px;
+  background: var(--glass-backdrop);
+  border: var(--glass-border);
+  transition: var(--transition);
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-soft);
+  }
+  
+  ion-icon {
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.9);
+  }
+}
+
 // === ANIMATIONS ===
 @keyframes fadeInUp {
   from {
