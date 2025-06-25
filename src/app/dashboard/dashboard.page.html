@@ -16,7 +16,6 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="modern-content">
-  <!-- Hero Section -->
   <div class="hero-section" *ngIf="isAutenticato() && !isLoading">
     <div class="hero-content">
       <div class="user-info">
@@ -33,7 +32,7 @@
     </div>
   </div>
 
-  <!-- Loading State -->
+  <!-- Sezione Loading -->
   <div class="loading-section" *ngIf="isLoading">
     <div class="loading-spinner">
       <ion-spinner name="crescent"></ion-spinner>
@@ -41,7 +40,7 @@
     <p class="loading-text">Caricamento dati...</p>
   </div>
 
-  <div class="dashboard-container" *ngIf="!isLoading && isAutenticato()">    <!-- Member Dashboard -->
+  <div class="dashboard-container" *ngIf="!isLoading && isAutenticato()">
     <div *ngIf="getRuolo() === 'member'" class="member-section">
       <div class="segment-container">
         <ion-segment [(ngModel)]="selezione" class="modern-segment">
@@ -56,7 +55,7 @@
         </ion-segment>
       </div>
 
-      <!-- Member Loans -->
+      <!-- Sezione membro -->
       <div *ngIf="selezione === 'loans'" class="content-section">
         <div class="section-header">
           <h2>I Tuoi Prestiti</h2>
@@ -125,7 +124,7 @@
         </div>
       </div>
 
-      <!-- Member Reservations -->
+      <!-- Prestito membro -->
       <div *ngIf="selezione === 'reservations'" class="content-section">
         <div class="section-header">
           <h2>Le Tue Prenotazioni</h2>
@@ -188,7 +187,7 @@
           </ion-segment-button>
         </ion-segment>
 
-        <!-- Pending Loans -->
+        <!-- Prestiti in attesa -->
         <div *ngIf="selezione === 'loans'">
           <ion-card *ngFor="let loan of prestitiAttesa" class="pending-card">
             <ion-card-header>
@@ -246,7 +245,7 @@
           </div>
         </div>
 
-        <!-- Pending Reservations -->
+        <!-- Prenotazioni in attesa -->
         <div *ngIf="selezione === 'reservations'">
           <ion-card *ngFor="let reservation of prenotazioniAttesa" class="pending-card">
             <ion-card-header>

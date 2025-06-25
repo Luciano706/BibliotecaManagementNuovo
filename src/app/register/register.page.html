@@ -1,5 +1,5 @@
 <ion-content [fullscreen]="true" class="register-content">
-  <!-- Background Elements -->
+  <!-- Animazioni -->
   <div class="background-elements">
     <div class="floating-shape shape-1"></div>
     <div class="floating-shape shape-2"></div>
@@ -7,7 +7,7 @@
     <div class="floating-shape shape-4"></div>
   </div>
 
-  <!-- Back Button -->
+  <!-- torna al login -->
   <div class="back-button-container">
     <ion-button fill="clear" (click)="login()" class="back-button">
       <ion-icon name="arrow-back-outline"></ion-icon>
@@ -16,7 +16,6 @@
   </div>
 
   <div class="register-container">
-    <!-- Brand Section -->
     <div class="brand-section">
       <div class="logo-container">
         <ion-icon name="person-add-outline" class="brand-logo"></ion-icon>
@@ -25,15 +24,15 @@
       <p class="brand-subtitle">Crea il tuo account per accedere al sistema</p>
     </div>
 
-    <!-- Registration Form Card -->
+    <!-- Card registrazione -->
     <div class="register-card">
       <div class="card-header">
         <h2>Registrazione</h2>
         <p>Compila tutti i campi richiesti</p>
       </div>
 
-      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
-        <!-- Username Field -->
+      <form [formGroup]="registerForm" (ngSubmit)="registrati()" class="register-form">
+        <!-- sezione input-->
         <div class="input-group">
           <label class="input-label">Username *</label>
           <div class="input-container">
@@ -53,7 +52,7 @@
           </div>
         </div>
 
-        <!-- Email Field -->
+        <!-- sezione mail -->
         <div class="input-group">
           <label class="input-label">Email *</label>
           <div class="input-container">
@@ -73,7 +72,7 @@
           </div>
         </div>
 
-        <!-- Password Field -->
+        <!-- sezione passwd -->
         <div class="input-group">
           <label class="input-label">Password *</label>
           <div class="input-container">
@@ -102,7 +101,7 @@
           </div>
         </div>
 
-        <!-- Role Selection -->
+        <!-- Selezione ruolo (default member) -->
         <div class="input-group">
           <label class="input-label">Ruolo *</label>
           <div class="select-container">
@@ -118,7 +117,7 @@
           </div>
         </div>
 
-        <!-- Library Selection (conditional) -->
+        <!-- selezione biblioteca (se necessario) -->
         <div class="input-group" *ngIf="registerForm.get('role')?.value === 'librarian'">
           <label class="input-label">Biblioteca *</label>
           <div class="select-container">

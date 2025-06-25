@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { 
-  ModalController, LoadingController, ToastController,
+  ModalController, ToastController,
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon,
   IonSearchbar, IonSpinner
 } from '@ionic/angular/standalone';
@@ -15,6 +15,7 @@ import { LoanService } from '../services/loan.service';
 import { AuthService } from '../services/auth.service';
 import { Library, LibraryBook } from '../models/library.model';
 import { CreateLoanRequest } from '../models/loan.model';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-library-books-modal',
@@ -30,50 +31,49 @@ export class LibraryBooksModalComponent implements OnInit {
   @Input() library!: Library;
     books: LibraryBook[] = [];
   isLoading = false;
-  searchTerm = '';
-  filteredBooks: LibraryBook[] = [];
-  isProcessingLoan: { [bookId: number]: boolean } = {};  constructor(
+  ricerca = '';
+  libriFiltro: LibraryBook[] = [];
+  elaborazionePrestito: { [bookId: number]: boolean } = {};  
+  constructor(
     private modalController: ModalController,
     private libraryService: LibraryService,
     private loanService: LoanService,
     private authService: AuthService,
-    private loadingController: LoadingController,
     private toastController: ToastController
   ) { 
     addIcons({ close, library, location, book, person, pricetag, barcode, search, addCircleOutline, banOutline });
   }
 
   ngOnInit() {
-    this.loadLibraryBooks();
+    this.caricaLibriBiblioteca();
   }
 
-  async loadLibraryBooks() {
+  async caricaLibriBiblioteca() {
     this.isLoading = true;
     
     try {
-      const response = await this.libraryService.ottieniLibriBiblioteca(this.library.id).toPromise();
+      const response = await firstValueFrom(this.libraryService.ottieniLibriBiblioteca(this.library.id));
       if (response && response.status === 'success') {
         this.books = response.data || [];
-        this.filteredBooks = [...this.books];
+        this.libriFiltro = [...this.books]; //Nota per noi: i tre puntini servono per fare una copia dell'aray
       } else {
         this.showToast('Errore nel caricamento dei libri', 'danger');
       }
     } catch (error) {
-      console.error('Errore durante il caricamento dei libri:', error);
       this.showToast('Errore nel caricamento dei libri', 'danger');
     } finally {
       this.isLoading = false;
     }
   }
 
-  filterBooks() {
-    if (!this.searchTerm.trim()) {
-      this.filteredBooks = [...this.books];
+  filtraLibri() {
+    if (!this.ricerca.trim()) {
+      this.libriFiltro = [...this.books];
       return;
     }
 
-    const term = this.searchTerm.toLowerCase();
-    this.filteredBooks = this.books.filter(book => 
+    const term = this.ricerca.toLowerCase();
+    this.libriFiltro = this.books.filter(book => 
       book.title?.toLowerCase().includes(term) ||
       book.author?.toLowerCase().includes(term) ||
       book.category?.toLowerCase().includes(term) ||
@@ -81,16 +81,16 @@ export class LibraryBooksModalComponent implements OnInit {
     );
   }
 
-  getAvailabilityClass(copies: number): string {
-    if (copies === 0) return 'unavailable';
-    if (copies <= 2) return 'low-availability';
+  ottieniTipoDisponibilitaTipo(numCopie: number): string {
+    if (numCopie === 0) return 'unavailable';
+    if (numCopie <= 2) return 'low-availability';
     return 'available';
   }
 
-  getAvailabilityText(copies: number): string {
-    if (copies === 0) return 'Non disponibile';
-    if (copies === 1) return '1 copia disponibile';
-    return `${copies} copie disponibili`;
+  ottieniTipoDisponibilitaTesto(numCopie: number): string {
+    if (numCopie === 0) return 'Non disponibile';
+    if (numCopie === 1) return '1 copia disponibile';
+    return `${numCopie} copie disponibili`;
   }
   async showToast(message: string, color: string = 'primary') {
     const toast = await this.toastController.create({
@@ -102,52 +102,33 @@ export class LibraryBooksModalComponent implements OnInit {
     toast.present();
   }
 
-  async requestLoan(book: LibraryBook) {
+  async richiediPrestito(libro: LibraryBook) {
     try {
-      // Verifica se l'utente è autenticato
-      const utenteAttuale = this.authService.ottieniUtenteAttuale();
-      if (!utenteAttuale || !utenteAttuale.id) {
-        this.showToast('Devi essere autenticato per richiedere un prestito', 'danger');
-        return;
-      }
-
-      // Verifica se l'utente ha il role member
-      if (utenteAttuale.role !== 'member') {
+      if (this.authService.getRuoloRaw() !== 'member') {
         this.showToast('Solo i membri possono richiedere prestiti', 'warning');
         return;
       }
 
-      // Imposta lo stato di caricamento per questo libro
-      this.isProcessingLoan[book.id] = true;      // Prepara i dati per la richiesta di prestito
+      this.elaborazionePrestito[libro.id] = true;
+
       const loanData: CreateLoanRequest = {
-        user_id: utenteAttuale.id,
+        user_id: this.authService.getId(),
         library_id: this.library.id,
-        book_id: book.id
+        book_id: libro.id
       };
 
-      // Effettua la richiesta di prestito
-      const response = await this.loanService.creaPrestito(loanData).toPromise();
+      const response = await firstValueFrom(this.loanService.creaPrestito(loanData));
       
       if (response && response.status === 'success') {
-        this.showToast(`Prestito richiesto con successo per "${book.title}"`, 'success');
+        this.showToast(`Richiesta di prestito inviata con successo per "${libro.title}"`, 'success');
         
-        // Aggiorna la disponibilità del libro localmente
-        const bookIndex = this.books.findIndex(b => b.id === book.id);
-        if (bookIndex !== -1) {
-          this.books[bookIndex].copies = Math.max(0, this.books[bookIndex].copies - 1);
-        }
-        
-        const filteredIndex = this.filteredBooks.findIndex(b => b.id === book.id);
-        if (filteredIndex !== -1) {
-          this.filteredBooks[filteredIndex].copies = Math.max(0, this.filteredBooks[filteredIndex].copies - 1);
-        }
       } else {
         this.showToast('Errore durante la richiesta di prestito', 'danger');
       }
     } catch (error: any) {
       console.error('Errore durante la richiesta di prestito:', error);
       
-      // Gestisci errori specifici
+      // Gestione errori del servr
       if (error.error && error.error.error) {
         this.showToast(error.error.error, 'danger');
       } else if (error.status === 400) {
@@ -158,8 +139,7 @@ export class LibraryBooksModalComponent implements OnInit {
         this.showToast('Errore durante la richiesta di prestito', 'danger');
       }
     } finally {
-      // Rimuovi lo stato di caricamento
-      this.isProcessingLoan[book.id] = false;
+      this.elaborazionePrestito[libro.id] = false;
     }
   }
 

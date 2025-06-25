@@ -1,5 +1,5 @@
 <ion-content [fullscreen]="true" class="login-content">
-  <!-- Background Elements -->
+  <!-- Animazioni background -->
   <div class="background-elements">
     <div class="floating-shape shape-1"></div>
     <div class="floating-shape shape-2"></div>
@@ -7,7 +7,7 @@
   </div>
 
   <div class="login-container">
-    <!-- Logo and Brand Section -->
+    <!-- Sezione logo e titolo -->
     <div class="brand-section">
       <div class="logo-container">
         <ion-icon name="library-outline" class="brand-logo"></ion-icon>
@@ -16,15 +16,15 @@
       <p class="brand-subtitle">Sistema di gestione multi-sede</p>
     </div>
 
-    <!-- Login Form Card -->
+    <!-- card login -->
     <div class="login-card">
       <div class="card-header">
         <h2>Benvenuto</h2>
         <p>Accedi per continuare</p>
       </div>
 
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-        <!-- Username Field -->
+      <form [formGroup]="loginForm" (ngSubmit)="accedi()" class="login-form">
+        <!-- sezione username -->
         <div class="input-group">
           <label class="input-label">Username</label>
           <div class="input-container">
@@ -44,7 +44,7 @@
           </div>
         </div>
 
-        <!-- Password Field -->
+        <!-- sezione password -->
         <div class="input-group">
           <label class="input-label">Password</label>
           <div class="input-container">
@@ -70,7 +70,7 @@
           </div>
         </div>
 
-        <!-- Login Button -->
+        <!-- pulsante login -->
         <ion-button 
           expand="block" 
           type="submit" 
@@ -83,7 +83,7 @@
           </div>
         </ion-button>
 
-        <!-- Register Link -->
+        <!-- route a registrazione -->
         <div class="register-section">
           <span class="register-text">Non hai un account?</span>
           <ion-button fill="clear" class="register-button" (click)="registrati()">

@@ -91,7 +91,7 @@ export class RegisterPage implements OnInit {
     this.mostraPassword = !this.mostraPassword;
   }
 
-  onSubmit() {
+  registrati() {
     if (this.registerForm.valid) {
       this.isLoading = true;
       

@@ -1,4 +1,4 @@
-// === VARIABLES ===
+
 :root {
   --primary-gradient: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
   --secondary-gradient: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
@@ -14,7 +14,7 @@
   --glass-backdrop: rgba(255, 255, 255, 0.05);
 }
 
-// === HEADER ===
+
 .modern-header {
   ion-toolbar {
     --background: rgba(15, 23, 42, 0.8);
@@ -40,14 +40,13 @@
   }
 }
 
-// === BASE STYLES ===
+
 .modern-content {
   --background: var(--primary-gradient);
   position: relative;
   overflow: hidden;
 }
 
-// === HERO SECTION ===
 .hero-section {
   position: relative;
   padding: 2rem 1.5rem 1.5rem;
@@ -140,7 +139,6 @@
   }
 }
 
-// === LOADING SECTION ===
 .loading-section {
   display: flex;
   flex-direction: column;
@@ -165,12 +163,10 @@
   }
 }
 
-// === DASHBOARD CONTAINER ===
 .dashboard-container {
   padding: 0 1.5rem 2rem;
 }
 
-// === MEMBER SECTION ===
 .member-section {
   .segment-container {
     margin-bottom: 2rem;
@@ -209,7 +205,6 @@
   }
 }
 
-// === CONTENT SECTION ===
 .content-section {
   .section-header {
     text-align: center;
@@ -239,7 +234,6 @@
   }
 }
 
-// === MODERN CARD ===
 .modern-card {
   background: var(--card-gradient);
   border-radius: var(--border-radius);
@@ -370,7 +364,6 @@
   }
 }
 
-// === EMPTY STATE ===
 .empty-state {
   text-align: center;
   padding: 3rem 1rem;
@@ -430,7 +423,6 @@
   }
 }
 
-// === ANIMATIONS ===
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -451,7 +443,6 @@
   }
 }
 
-// === RESPONSIVE DESIGN ===
 @media (max-width: 768px) {
   .hero-section {
     padding: 1.5rem 1rem;

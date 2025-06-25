@@ -1,4 +1,3 @@
-// === MODERN VARIABLES === (Libraries-inspired)
 :root {
   --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
@@ -15,7 +14,6 @@
   --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-// === HEADER STYLING ===
 .modern-toolbar {
   --background: transparent;
   --color: white;
@@ -39,6 +37,30 @@
     z-index: 2;
   }
 
+  .back-button {
+    --border-radius: 50%;
+    --padding-start: 0;
+    --padding-end: 0;
+    width: 36px;
+    height: 36px;
+    margin-left: 8px;
+    background: var(--glass-backdrop);
+    border: var(--glass-border);
+    transition: var(--transition);
+    position: relative;
+    z-index: 2;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-soft);
+    }
+    
+    ion-icon {
+      font-size: 20px;
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
   .page-title {
     position: relative;
     z-index: 2;
@@ -60,7 +82,6 @@
   }
 }
 
-// === BASE CONTENT ===
 .modern-content {
   --background: var(--dark-bg);
   --color: white;
@@ -75,7 +96,6 @@
   z-index: 1;
 }
 
-// Segment Navigation
 ion-segment {
   margin-bottom: 2rem;
   background: var(--card-bg);
@@ -84,7 +104,6 @@ ion-segment {
   border: 1px solid var(--glass-border);
 }
 
-// === ERROR MESSAGES ===
 .error-messages {
   margin-top: 1.5rem;
   padding: 1rem;
@@ -112,7 +131,6 @@ ion-segment {
   }
 }
 
-// === CONDITIONAL SECTIONS ===
 .conditional-section {
   animation: slideInFade 0.4s ease-out;
   margin-top: 1rem;
@@ -154,7 +172,6 @@ ion-segment {
   }
 }
 
-// Fixed Library Display for Librarians
 .fixed-library-display {
   padding: 1rem;
 
@@ -178,7 +195,6 @@ ion-segment {
   }
 }
 
-// Book Preview Styling
 .book-preview {
   margin-top: 1rem;
 
@@ -255,7 +271,6 @@ ion-segment {
   }
 }
 
-// Loading and Empty States for Book Selection
 .loading-state, .empty-state {
   display: flex;
   flex-direction: column;
@@ -303,7 +318,6 @@ ion-segment {
   }
 }
 
-// === ANIMATIONS ===
 @keyframes slideInFade {
   from {
     opacity: 0;
@@ -348,7 +362,6 @@ ion-segment {
   }
 }
 
-// === INPUT FOCUS EFFECTS ===
 .modern-item:focus-within {
   .item-label {
     color: #fbbf24;
@@ -360,7 +373,6 @@ ion-segment {
   --background: rgba(255, 255, 255, 0.1);
 }
 
-// === RESPONSIVE DESIGN ===
 @media (max-width: 768px) {
   .hero-section {
     padding: 2rem 1rem 1.5rem;
@@ -395,7 +407,6 @@ ion-segment {
   }
 }
 
-// === ACCESSIBILITY ===
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -408,7 +419,6 @@ ion-segment {
   }
 }
 
-// === DARK MODE ADJUSTMENTS ===
 @media (prefers-color-scheme: dark) {
   :root {
     --glass-backdrop: rgba(255, 255, 255, 0.03);
@@ -416,14 +426,12 @@ ion-segment {
   }
 }
 
-// Form Grid Layout
 .form-grid {
   max-width: 1000px;
   margin: 0 auto;
   padding: 0;
 }
 
-// Form Card - Modern Design like Libraries
 .form-card {
   background: var(--card-bg);
   backdrop-filter: blur(20px);
@@ -478,7 +486,6 @@ ion-segment {
   }
 }
 
-// Form Card Header
 .form-card-header {
   text-align: center;
   padding: 2rem 1.5rem 1rem;
@@ -540,7 +547,6 @@ ion-segment {
   }
 }
 
-// Form Card Content
 .form-card-content {
   padding: 0 1.5rem 1.5rem;
   position: relative;

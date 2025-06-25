@@ -1,4 +1,4 @@
-// Modal Header
+
 .modal-toolbar {
   --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --color: white;
@@ -35,7 +35,6 @@
   }
 }
 
-// Modal Content
 .modal-content {
   --background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
   --color: white;
@@ -46,7 +45,6 @@
   min-height: 100%;
 }
 
-// Header Section
 .header-section {
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
   backdrop-filter: blur(20px);
@@ -134,7 +132,6 @@
   }
 }
 
-// Loading Section
 .loading-section {
   display: flex;
   flex-direction: column;
@@ -155,7 +152,6 @@
   }
 }
 
-// Books Grid
 .books-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -302,7 +298,6 @@
     }
   }
 
-  // Book Actions
   .book-actions {
     margin-top: 1rem;
     position: relative;
@@ -380,7 +375,6 @@
   }
 }
 
-// Empty State
 .empty-state {
   text-align: center;
   padding: 3rem 1rem;
@@ -408,7 +402,6 @@
   }
 }
 
-// Responsive Design
 @media (max-width: 768px) {
   .books-grid {
     grid-template-columns: 1fr;

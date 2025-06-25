@@ -40,7 +40,7 @@ export class LoginPage implements OnInit {
     
     this.loginForm = this.formBuilder.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, Validators.minLength(6)]] //Non è necessario il pattern per la password, perché già presente nella registrazione
     });
   }
 
@@ -54,7 +54,7 @@ export class LoginPage implements OnInit {
   mostraNascondiPassword() {
     this.showPassword = !this.showPassword;
   }
-  onSubmit() {
+  accedi() {
     if (this.loginForm.valid) {
       this.isLoading = true;
       

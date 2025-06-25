@@ -11,7 +11,7 @@
 
 <ion-content class="modal-content">
   <div class="books-container">
-    <!-- Header Section -->
+    <!-- Header -->
     <div class="header-section">
       <div class="library-info">
         <div class="library-icon">
@@ -26,11 +26,11 @@
         </div>
       </div>
       
-      <!-- Search Bar -->
+      <!-- Barra di ricerca -->
       <div class="search-section">
         <ion-searchbar
-          [(ngModel)]="searchTerm"
-          (ionInput)="filterBooks()"
+          [(ngModel)]="ricerca"
+          (ionInput)="filtraLibri()"
           placeholder="Cerca libri per titolo, autore, categoria..."
           show-clear-button="focus"
           debounce="300">
@@ -38,57 +38,58 @@
       </div>
     </div>
 
-    <!-- Loading State -->
+    <!-- sezione di loading -->
     <div *ngIf="isLoading" class="loading-section">
       <ion-spinner name="crescent"></ion-spinner>
       <p>Caricamento libri in corso...</p>
     </div>
 
-    <!-- Books Grid -->
+    <!-- griglia libri -->
     <div *ngIf="!isLoading" class="books-grid">
-      <div *ngFor="let book of filteredBooks" class="book-card">
+      <div *ngFor="let libro of libriFiltro" class="book-card">
         <div class="book-header">
           <div class="book-icon">
             <ion-icon name="book"></ion-icon>
           </div>
-          <div class="availability-badge" [class]="getAvailabilityClass(book.copies)">
-            {{ getAvailabilityText(book.copies) }}
+          <div class="availability-badge" [class]="ottieniTipoDisponibilitaTipo(libro.copies)">
+            {{ ottieniTipoDisponibilitaTesto(libro.copies) }}
           </div>
         </div>
         
         <div class="book-content">
-          <h3 class="book-title">{{ book.title }}</h3>
+          <h3 class="book-title">{{ libro.title }}</h3>
           <p class="book-author">
             <ion-icon name="person"></ion-icon>
-            {{ book.author }}
+            {{ libro.author }}
           </p>
             <div class="book-details">
-            <div class="detail-item" *ngIf="book.category">
+            <div class="detail-item" *ngIf="libro.category">
               <ion-icon name="pricetag"></ion-icon>
-              <span>{{ book.category }}</span>
+              <span>{{ libro.category }}</span>
             </div>
-            <div class="detail-item" *ngIf="book.isbn">
+            <div class="detail-item" *ngIf="libro.isbn">
               <ion-icon name="barcode"></ion-icon>
-              <span>{{ book.isbn }}</span>
+              <span>{{ libro.isbn }}</span>
             </div>
           </div>
           
-          <!-- Loan Button -->
-          <div class="book-actions" *ngIf="book.copies > 0">
+          <!-- Pulsante prenotazione -->
+          <div class="book-actions" *ngIf="libro.copies > 0">
             <ion-button 
               expand="block" 
               fill="solid" 
               class="loan-button"
-              [disabled]="isProcessingLoan[book.id]"
-              (click)="requestLoan(book)">
-              <ion-spinner *ngIf="isProcessingLoan[book.id]" name="crescent" size="small"></ion-spinner>              <div *ngIf="!isProcessingLoan[book.id]" class="button-content">
+              [disabled]="elaborazionePrestito[libro.id]"
+              (click)="richiediPrestito(libro)">
+              <ion-spinner *ngIf="elaborazionePrestito[libro.id]" name="crescent" size="small"></ion-spinner>
+              <div *ngIf="!elaborazionePrestito[libro.id]" class="button-content">
                 <ion-icon name="add-circle-outline"></ion-icon>
                 <span>Prendi in Prestito</span>
               </div>
             </ion-button>
           </div>
           
-          <div class="book-actions" *ngIf="book.copies === 0">
+          <div class="book-actions" *ngIf="libro.copies === 0">
             <ion-button 
               expand="block" 
               fill="outline" 
@@ -101,8 +102,8 @@
       </div>
     </div>
 
-    <!-- Empty State -->
-    <div *ngIf="!isLoading && filteredBooks.length === 0 && books.length > 0" class="empty-state">
+    <!-- sezione enl caso sia vuoto -->
+    <div *ngIf="!isLoading && libriFiltro.length === 0 && books.length > 0" class="empty-state">
       <ion-icon name="search"></ion-icon>
       <h3>Nessun risultato</h3>
       <p>Non sono stati trovati libri che corrispondono alla tua ricerca.</p>

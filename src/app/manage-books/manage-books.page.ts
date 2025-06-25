@@ -24,12 +24,14 @@ import {
   barcodeOutline,
   pricetagOutline,
   optionsOutline,
-  copyOutline
+  copyOutline,
+  arrowBackOutline
 } from 'ionicons/icons';
 import { AuthService } from '../services/auth.service';
 import { LibraryService } from '../services/library.service';
 import { Library } from '../models/library.model';
 import { User } from '../models/user.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-manage-books',
@@ -48,23 +50,24 @@ import { User } from '../models/user.model';
 })
 export class ManageBooksPage implements OnInit {
   utenteAttuale: User | null = null;
-  selectedSegment = 'add-book';
-  libraries: Library[] = [];
-  books: any[] = []; // Lista di tutti i libri del catalogo
+  sezioneSelezionata = 'add-book';
+  biblioteche: Library[] = [];
+  libri: any[] = [];
   
-  addBookForm: FormGroup;
-  addToLibraryForm: FormGroup;
+  aggiungiLibroForm: FormGroup;
+  aggiungiLibroABibliotecaForm: FormGroup;
   
-  isSubmitting = false;
-  isLoadingBooks = false;
-  toastMessage = '';
+  richiestaInCorso = false;
+  caricamentoLibri = false;
+  messaggioToast = '';
   showToast = false;
-  hasLibraryAccess = true; // Track if librarian has library access
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private libraryService: LibraryService
-  ) {    addIcons({ 
+    private libraryService: LibraryService,
+    private router: Router
+  ) {
+    addIcons({ 
       settingsOutline, 
       libraryOutline, 
       bookOutline, 
@@ -77,35 +80,34 @@ export class ManageBooksPage implements OnInit {
       barcodeOutline,
       pricetagOutline,
       optionsOutline,
-      copyOutline
+      copyOutline,
+      arrowBackOutline
     });
     
-    this.addBookForm = this.formBuilder.group({
+    this.aggiungiLibroForm = this.formBuilder.group({
       title: ['', [Validators.required]],
       author: ['', [Validators.required]],
-      isbn: ['', [Validators.required]],
+      isbn: ['', [Validators.required]], //Valutare lunghezza ISBM
       category: ['', [Validators.required]]
     });
 
-    this.addToLibraryForm = this.formBuilder.group({
+    this.aggiungiLibroABibliotecaForm = this.formBuilder.group({
       action: ['existing', [Validators.required]],
       library_id: ['', [Validators.required]],
       book_id: [''],
       copies: [1, [Validators.required, Validators.min(1)]],
-      // New book fields
       title: [''],
       author: [''],
       isbn: [''],
       category: ['']
     });
 
-    // Monitor action changes to set validation
-    this.addToLibraryForm.get('action')?.valueChanges.subscribe(action => {
-      const bookIdControl = this.addToLibraryForm.get('book_id');
-      const titleControl = this.addToLibraryForm.get('title');
-      const authorControl = this.addToLibraryForm.get('author');
-      const isbnControl = this.addToLibraryForm.get('isbn');
-      const categoryControl = this.addToLibraryForm.get('category');
+    this.aggiungiLibroABibliotecaForm.get('action')?.valueChanges.subscribe(action => {
+      const bookIdControl = this.aggiungiLibroABibliotecaForm.get('book_id');
+      const titleControl = this.aggiungiLibroABibliotecaForm.get('title');
+      const authorControl = this.aggiungiLibroABibliotecaForm.get('author');
+      const isbnControl = this.aggiungiLibroABibliotecaForm.get('isbn');
+      const categoryControl = this.aggiungiLibroABibliotecaForm.get('category');
 
       if (action === 'existing') {
         bookIdControl?.setValidators([Validators.required]);
@@ -117,7 +119,7 @@ export class ManageBooksPage implements OnInit {
         bookIdControl?.clearValidators();
         titleControl?.setValidators([Validators.required]);
         authorControl?.setValidators([Validators.required]);
-        isbnControl?.setValidators([Validators.required]);
+        isbnControl?.setValidators([Validators.required, Validators.minLength(13)]); //limite reale ISBN
         categoryControl?.setValidators([Validators.required]);
       }
 
@@ -130,52 +132,46 @@ export class ManageBooksPage implements OnInit {
   }  ngOnInit() {
     this.authService.ottieniUtenteSubject$().subscribe(user => {
       this.utenteAttuale = user;
-      this.setupLibraryAccess();
+      this.impostaAccessoBiblioteca();
     });
     
-    this.loadLibraries();
-    this.loadBooks();
-  }setupLibraryAccess() {
-    if (!this.utenteAttuale) return;
+    this.caricaBiblioteche();
+    this.caricaLibri();
+  }
+  
+  impostaAccessoBiblioteca() {
+    if (!this.authService.isAutenticato) return;
 
-    const libraryControl = this.addToLibraryForm.get('library_id');
+    const libraryControl = this.aggiungiLibroABibliotecaForm.get('library_id');
     
-    if (this.utenteAttuale.role === 'librarian') {
-      // Librarian: find their managed library and preselect it
-      const managedLibrary = this.libraries.find(lib => lib.manager_id === this.utenteAttuale!.id);
+    if (this.authService.getRuoloRaw() === 'librarian') {
+      const managedLibrary = this.biblioteche.find(lib => lib.manager_id === this.utenteAttuale!.id);
       if (managedLibrary) {
         libraryControl?.setValue(managedLibrary.id);
         libraryControl?.disable();
-        this.hasLibraryAccess = true;
-      } else {
-        // Librarian has no assigned library
-        libraryControl?.disable();
-        this.hasLibraryAccess = false;
       }
-    } else if (this.utenteAttuale.role === 'admin') {
-      // Admin: enable library selection
+    } else if (this.authService.getRuoloRaw() === 'admin') {
       libraryControl?.enable();
-      this.hasLibraryAccess = true;
     }
   }
 
-  isLibrarySelectionDisabled(): boolean {
-    return this.utenteAttuale?.role === 'librarian';
+  isAdmin(): boolean {
+    return this.authService.getRuoloRaw() === 'librarian';
   }
 
-  getAssignedLibraryName(): string {
+  ottieniBibliotecaAssegnata(): string {
     if (this.utenteAttuale?.role === 'librarian') {
-      const managedLibrary = this.libraries.find(lib => lib.manager_id === this.utenteAttuale!.id);
+      const managedLibrary = this.biblioteche.find(lib => lib.manager_id === this.utenteAttuale!.id);
       return managedLibrary ? managedLibrary.name : 'Biblioteca non assegnata';
     }
     return '';
   }
-  loadLibraries() {
+  caricaBiblioteche() {
     this.libraryService.ottieniBiblioteche().subscribe({
       next: (response) => {
         if (response.status === 'success' && response.data) {
-          this.libraries = response.data;
-          this.setupLibraryAccess(); // Setup access after libraries are loaded
+          this.biblioteche = response.data;
+          this.impostaAccessoBiblioteca(); 
         }
       },
       error: (error) => {
@@ -184,64 +180,61 @@ export class ManageBooksPage implements OnInit {
     });
   }
 
-  loadBooks() {
-    this.isLoadingBooks = true;
+  caricaLibri() {
+    this.caricamentoLibri = true;
     this.libraryService.ottieniTuttiLibri().subscribe({
       next: (response) => {
-        this.isLoadingBooks = false;
+        this.caricamentoLibri = false;
         if (response.status === 'success' && response.data) {
-          this.books = response.data;
+          this.libri = response.data;
         }
       },
       error: (error) => {
-        this.isLoadingBooks = false;
-        console.error('Error loading books:', error);
-        this.showToastMessage('Errore nel caricamento dei libri del catalogo');
+        this.caricamentoLibri = false;
+        this.mostraMessaggioToast('Errore nel caricamento dei libri del catalogo');
       }
     });
   }
-  onAddBook() {
-    if (this.addBookForm.valid) {
-      this.isSubmitting = true;
+  aggiungiLibro() {
+    if (this.aggiungiLibroForm.valid) {
+      this.richiestaInCorso = true;
       
-      this.libraryService.aggiungiLibro(this.addBookForm.value).subscribe({
+      this.libraryService.aggiungiLibro(this.aggiungiLibroForm.value).subscribe({
         next: (response) => {
-          this.isSubmitting = false;
-          this.showToastMessage('Libro aggiunto al catalogo con successo!', 'success');
-          this.addBookForm.reset();
-          // Ricarica la lista dei libri per aggiornare il dropdown
-          this.loadBooks();
+          this.richiestaInCorso = false;
+          this.mostraMessaggioToast('Libro aggiunto al catalogo con successo!', 'success');
+          this.aggiungiLibroForm.reset();
+          this.caricaLibri();
         },
         error: (error) => {
-          this.isSubmitting = false;
-          this.showToastMessage(error.error?.error || 'Errore durante l\'aggiunta del libro');
+          this.richiestaInCorso = false;
+          this.mostraMessaggioToast(error.error?.error || 'Errore durante l\'aggiunta del libro');
         }
       });
     }
-  }  onAddToLibrary() {
+  }  
+  aggiungiLibroBiblioteca() {
     if (this.isFormValid()) {
-      this.isSubmitting = true;
-      const formValue = this.addToLibraryForm.getRawValue(); // getRawValue() includes disabled controls
+      this.richiestaInCorso = true;
+      const formValue = this.aggiungiLibroABibliotecaForm.getRawValue();
       
       if (formValue.action === 'existing') {
-        // Add existing book to library
         this.libraryService.aggiungiLibroBiblioteca(
           formValue.library_id,
           formValue.book_id,
           formValue.copies
         ).subscribe({
           next: (response) => {
-            this.isSubmitting = false;
-            this.showToastMessage('Copie aggiunte alla biblioteca con successo!', 'success');
-            this.addToLibraryForm.patchValue({ book_id: '', copies: 1 });
+            this.richiestaInCorso = false;
+            this.mostraMessaggioToast('Copie aggiunte alla biblioteca con successo!', 'success');
+            this.aggiungiLibroABibliotecaForm.patchValue({ book_id: '', copies: 1 });
           },
           error: (error) => {
-            this.isSubmitting = false;
-            this.showToastMessage(error.error?.error || 'Errore durante l\'aggiunta delle copie');
+            this.richiestaInCorso = false;
+            this.mostraMessaggioToast(error.error?.error || 'Errore durante l\'aggiunta delle copie');
           }
         });
       } else {
-        // Add new book and copies to library
         const bookData = {
           title: formValue.title,
           author: formValue.author,
@@ -252,9 +245,9 @@ export class ManageBooksPage implements OnInit {
         
         this.libraryService.aggiungiNuovoLibroBiblioteca(formValue.library_id, bookData).subscribe({
           next: (response) => {
-            this.isSubmitting = false;
-            this.showToastMessage('Nuovo libro aggiunto alla biblioteca con successo!', 'success');
-            this.addToLibraryForm.patchValue({
+            this.richiestaInCorso = false;
+            this.mostraMessaggioToast('Nuovo libro aggiunto alla biblioteca con successo!', 'success');
+            this.aggiungiLibroABibliotecaForm.patchValue({
               title: '',
               author: '',
               isbn: '',
@@ -263,36 +256,35 @@ export class ManageBooksPage implements OnInit {
             });
           },
           error: (error) => {
-            this.isSubmitting = false;
-            this.showToastMessage(error.error?.error || 'Errore durante l\'aggiunta del nuovo libro');
+            this.richiestaInCorso = false;
+            this.mostraMessaggioToast(error.error?.error || 'Errore durante l\'aggiunta del nuovo libro');
           }
         });
       }
     }
   }
 
-  // Get selected book details for display
-  getSelectedBookDetails(): any {
-    const selectedBookId = this.addToLibraryForm.get('book_id')?.value;
+  ottieniDettagliLibroSelezionato(): any {
+    const selectedBookId = this.aggiungiLibroABibliotecaForm.get('book_id')?.value;
     if (selectedBookId) {
-      return this.books.find(book => book.id === selectedBookId);
+      return this.libri.find(book => book.id === selectedBookId);
     }
     return null;
   }
 
-  private showToastMessage(message: string, color: string = 'danger') {
-    this.toastMessage = message;
+  private mostraMessaggioToast(message: string, color: string = 'danger') {
+    this.messaggioToast = message;
     this.showToast = true;
   }
 
   onToastDismiss() {
     this.showToast = false;
   }
+
   isFormValid(): boolean {
-    if (this.isLibrarySelectionDisabled()) {
-      // For librarians, check if they have a managed library and other form fields are valid
-      const formValue = this.addToLibraryForm.getRawValue();
-      const managedLibrary = this.libraries.find(lib => lib.manager_id === this.utenteAttuale!.id);
+    if (this.isAdmin()) {
+      const formValue = this.aggiungiLibroABibliotecaForm.getRawValue();
+      const managedLibrary = this.biblioteche.find(lib => lib.manager_id === this.utenteAttuale!.id);
       
       return managedLibrary && 
              formValue.action && 
@@ -300,10 +292,10 @@ export class ManageBooksPage implements OnInit {
              ((formValue.action === 'existing' && formValue.book_id) ||
               (formValue.action === 'new' && formValue.title && formValue.author && formValue.isbn && formValue.category));
     }
-    return this.addToLibraryForm.valid;
+    return this.aggiungiLibroABibliotecaForm.valid;
   }
 
-  hasLibraryManagementAccess(): boolean {
-    return this.hasLibraryAccess;
+  tornaAllaHome() {
+    this.router.navigate(['/home']);
   }
 }

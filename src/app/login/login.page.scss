@@ -1,4 +1,4 @@
-// === VARIABLES ===
+
 :root {
   --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
   --secondary-gradient: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%);
@@ -10,7 +10,7 @@
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-// === BASE STYLES ===
+
 ion-content.login-content {
   --background: var(--primary-gradient);
   --padding-top: 0;
@@ -19,7 +19,6 @@ ion-content.login-content {
   overflow: hidden;
 }
 
-// === BACKGROUND ELEMENTS ===
 .background-elements {
   position: absolute;
   top: 0;
@@ -69,7 +68,6 @@ ion-content.login-content {
   50% { transform: translateY(-20px) rotate(180deg); }
 }
 
-// === MAIN CONTAINER ===
 .login-container {
   display: flex;
   flex-direction: column;
@@ -81,7 +79,6 @@ ion-content.login-content {
   z-index: 1;
 }
 
-// === BRAND SECTION ===
 .brand-section {
   text-align: center;
   margin-bottom: 3rem;
@@ -130,7 +127,6 @@ ion-content.login-content {
   }
 }
 
-// === LOGIN CARD ===
 .login-card {
   width: 100%;
   max-width: 420px;
@@ -162,7 +158,6 @@ ion-content.login-content {
   }
 }
 
-// === FORM STYLES ===
 .login-form {
   .input-group {
     margin-bottom: 1.5rem;
@@ -242,7 +237,6 @@ ion-content.login-content {
   }
 }
 
-// === BUTTONS ===
 .login-button {
   --background: var(--primary-gradient);
   --color: white;
@@ -310,7 +304,6 @@ ion-content.login-content {
 
 
 
-// === ANIMATIONS ===
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -322,7 +315,6 @@ ion-content.login-content {
   }
 }
 
-// === RESPONSIVE DESIGN ===
 @media (max-width: 768px) {
   .login-container {
     padding: 1rem;
@@ -388,7 +380,6 @@ ion-content.login-content {
   }
 }
 
-// === ACCESSIBILITY ===
 @media (prefers-reduced-motion: reduce) {
   .floating-shape {
     animation: none;
@@ -405,7 +396,6 @@ ion-content.login-content {
   }
 }
 
-// === DARK MODE SUPPORT ===
 @media (prefers-color-scheme: dark) {
   .login-card {
     background: rgba(30, 41, 59, 0.95);

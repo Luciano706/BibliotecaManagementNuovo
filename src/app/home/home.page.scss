@@ -1,4 +1,4 @@
-// === VARIABLES ===
+
 :root {
   --primary-gradient: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
   --secondary-gradient: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
@@ -14,7 +14,6 @@
   --glass-backdrop: rgba(255, 255, 255, 0.05);
 }
 
-// === HEADER ===
 .modern-header {
   ion-toolbar {
     --background: rgba(15, 23, 42, 0.8);
@@ -40,14 +39,12 @@
   }
 }
 
-// === BASE STYLES ===
 .modern-content {
   --background: var(--primary-gradient);
   position: relative;
   overflow: hidden;
 }
 
-// === HERO SECTION ===
 .hero-section {
   position: relative;
   padding: 3rem 1.5rem 2rem;
@@ -187,7 +184,6 @@
   }
 }
 
-// === LOADING SECTION ===
 .loading-section {
   display: flex;
   flex-direction: column;
@@ -212,7 +208,6 @@
   }
 }
 
-// === NAVIGATION SECTION ===
 .navigation-section {
   padding: 2rem 1.5rem;
 }
@@ -346,7 +341,6 @@
   transform: translateX(4px);
 }
 
-// === QUICK ACTIONS ===
 .quick-actions {
   padding: 2rem 1.5rem;
   margin-top: 1rem;
@@ -417,7 +411,6 @@
 
 
 
-// === ANIMATIONS ===
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -438,7 +431,6 @@
   }
 }
 
-// Aggiungi l'animazione slideInUp se manca
 @keyframes slideInUp {
   from {
     opacity: 0;
@@ -450,7 +442,6 @@
   }
 }
 
-// === RESPONSIVE DESIGN ===
 @media (max-width: 768px) {
   .hero-section {
     padding: 2rem 1rem;

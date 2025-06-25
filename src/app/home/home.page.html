@@ -28,7 +28,7 @@
     </div>
   </div>
 
-  <!-- sezione mostrata durante il caricamento della pagina-->
+  <!-- sezione loading-->
   <div class="loading-section" *ngIf="!isAutenticato()">
     <div class="loading-spinner">
       <ion-spinner name="crescent"></ion-spinner>
@@ -36,7 +36,7 @@
     <p class="loading-text">Caricamento in corso...</p>
   </div>
 
-  <!-- Card per le opzioni -->
+  <!-- Card -->
   <div class="navigation-section" *ngIf="isAutenticato()">
     
     

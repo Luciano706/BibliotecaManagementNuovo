@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
+
+//CONTROLLO ACCESSO
 @Injectable({
   providedIn: 'root'
 })
@@ -19,7 +21,7 @@ export class ControlloAccesso implements CanActivate {
   }
 }
 
-
+//CONTROLLO RUOLO
 @Injectable({
   providedIn: 'root'
 })

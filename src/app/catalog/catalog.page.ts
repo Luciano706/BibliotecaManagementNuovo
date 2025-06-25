@@ -49,7 +49,7 @@ export class CatalogPage implements OnInit {
   isLoading = true;
   isProcessingAction: { [bookId: number]: boolean } = {};
 
-  flagBibliotecheCaricate = false; //variabile di sicurezza per evitare che ci siano dati mancanti
+  flagBibliotecheCaricate = false;
   
 
   showToast = false;
@@ -60,7 +60,7 @@ export class CatalogPage implements OnInit {
     private libraryService: LibraryService,
     private loanService: LoanService,
     private authService: AuthService,
-    private router: Router  // Aggiungi il router
+    private router: Router
   ) {
     addIcons({ 
       bookOutline, 
@@ -73,7 +73,7 @@ export class CatalogPage implements OnInit {
       bookmarkOutline,
       chevronDownOutline,
       alertCircleOutline,
-      arrowBackOutline  // Aggiungi questa icona
+      arrowBackOutline
     });
   }  ngOnInit() {
     this.caricaBiblioteche();
@@ -245,7 +245,6 @@ ottieniBiblioteceDisponibiliPerLibro(idLibro: number): Library[] {
     window.location.reload();
   }
 
-  // Aggiungi questo metodo
   tornaAllaHome() {
     this.router.navigate(['/home']);
   }
