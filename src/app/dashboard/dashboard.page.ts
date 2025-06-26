@@ -48,6 +48,9 @@ export class DashboardPage implements OnInit {
   prestitiAttesa: Loan[] = [];
   prenotazioniAttesa: Reservation[] = [];
   
+  tuttiPrestiti: Loan[] = [];
+  tuttePrenotazioni: Reservation[] = [];
+  
   isLoading = true;
 
   constructor(
@@ -123,6 +126,26 @@ export class DashboardPage implements OnInit {
       },
       error: (error) => {
         console.error('Errore:', error);
+      }
+    });
+
+    
+    this.loanService.ottieniTuttiPrestiti().subscribe({
+      next: (loans) => {
+        this.tuttiPrestiti = loans;
+      },
+      error: (error) => {
+        
+      }
+    });
+
+    
+    this.loanService.ottieniTuttePrenotazioni().subscribe({
+      next: (reservations) => {
+        this.tuttePrenotazioni = reservations;
+      },
+      error: (error) => {
+        
       }
     });
   }
