@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { 
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, 
-  IonMenuButton, IonButton, IonIcon,
-  IonItem, IonBadge, 
+  IonMenuButton, IonButton, IonIcon, IonBadge, 
   IonSpinner, IonSelect, IonSelectOption, IonToast
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -37,8 +36,7 @@ import { Router } from '@angular/router';
     FormsModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
     IonMenuButton, IonButton, IonIcon,
-    IonItem, IonBadge,
-    IonSpinner, IonSelect, IonSelectOption, IonToast
+    IonBadge, IonSpinner, IonSelect, IonSelectOption, IonToast
   ]
 })
 export class CatalogPage implements OnInit {
@@ -157,7 +155,7 @@ private caricaNumeroCopiePerBiblioteca() {
     });
   });
 }  
-libroEsisteNellaBiblioteca(idLibro: number, idBiblioteca: number): boolean {
+private libroEsisteNellaBiblioteca(idLibro: number, idBiblioteca: number): boolean {
     return this.libroEsisteInBiblioteca[idLibro]?.[idBiblioteca] || false;
   }
 

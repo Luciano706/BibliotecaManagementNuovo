@@ -28,6 +28,7 @@ import {
   analyticsOutline
 } from 'ionicons/icons';
 import { AuthService } from '../services/auth.service';
+import { User } from '../models/user.model';
 
 @Component({
   selector: 'app-home',
@@ -46,6 +47,7 @@ import { AuthService } from '../services/auth.service';
 })
 export class HomePage implements OnInit, OnDestroy {
   ogettiMenu: any[] = [];
+  utenteAttuale: User | null = null; // Volevamo usare le funzioni del service, ma abbiamo un pobrlema di timing
   private userSubscription: Subscription | null = null;
 
   constructor(
@@ -68,10 +70,12 @@ export class HomePage implements OnInit, OnDestroy {
       analyticsOutline
     });
   }
+
   ngOnInit() {
     this.authService.checkValiditaSessione();
     this.userSubscription = this.authService.ottieniUtenteSubject$().subscribe(user => {
-      this.aggiornaOgettiMenu();
+      this.utenteAttuale = user;
+      this.aggiornaOgettiMenu(user);
     });
   }
 
@@ -81,8 +85,11 @@ export class HomePage implements OnInit, OnDestroy {
     }
   }
 
-  private aggiornaOgettiMenu() {
-    if (!this.authService.isAutenticato()) {
+  private aggiornaOgettiMenu(user: User | null = null) {
+    const currentUser = user || this.utenteAttuale;
+    
+    
+    if (!currentUser) {
       this.ogettiMenu = [];
       return;
     }
@@ -92,13 +99,16 @@ export class HomePage implements OnInit, OnDestroy {
       { title: 'Biblioteche', icon: 'library-outline', path: '/libraries' },
       { title: 'Dashboard', icon: 'stats-chart-outline', path: '/dashboard' }
     ];
-    if (this.authService.getRuoloRaw() === 'librarian' || this.authService.getRuoloRaw() === 'admin') {
-      this.ogettiMenu.push({ 
-        title: 'Gestione Libri', 
-        icon: 'add-outline', 
-        path: '/manage-books' 
-      });
+
+    
+    if (currentUser.role === 'librarian' || currentUser.role === 'admin') {
+        this.ogettiMenu.push({ 
+          title: 'Gestione Libri', 
+          icon: 'add-outline', 
+          path: '/manage-books' 
+        });
     }
+    
   }
 
   vai(path: string) {
@@ -121,4 +131,6 @@ export class HomePage implements OnInit, OnDestroy {
   isAutenticato(): boolean {
     return this.authService.isAutenticato();
   }
+
+
 }

@@ -151,6 +151,16 @@ export class AuthService {
       return "";
   }
 
+  public getRuoloDaStringa(string: String): string {
+    
+      switch (string) {
+      case 'member': return 'Membro';
+      case 'librarian': return 'Bibliotecario';
+      case 'admin': return 'Amministratore';
+      default: return "";
+      }
+  }
+
   public getUsername(): string {
     const jsonUser = localStorage.getItem('utenteAttuale');
     if (jsonUser) {

@@ -29,7 +29,7 @@
   </div>
 
   <!-- sezione loading-->
-  <div class="loading-section" *ngIf="!isAutenticato()">
+  <div class="loading-section" *ngIf="!utenteAttuale">
     <div class="loading-spinner">
       <ion-spinner name="crescent"></ion-spinner>
     </div>
@@ -37,7 +37,7 @@
   </div>
 
   <!-- Card -->
-  <div class="navigation-section" *ngIf="isAutenticato()">
+  <div class="navigation-section" *ngIf="utenteAttuale">
     
     
     <div class="cards-grid">
