@@ -38,7 +38,7 @@
   
   <div class="catalog-container" *ngIf="!isLoading">
     <div class="books-grid">
-      <div class="book-card modern-card" *ngFor="let libro of libri">
+      <div class="book-card" *ngFor="let libro of libri">
         <div class="card-header">
           <div class="book-icon">
             <ion-icon name="book-outline"></ion-icon>
@@ -81,60 +81,59 @@
               </div>
             </div>
           </div>          
-          <div class="library-selection" *ngIf="biblioteche.length > 0">
-            <div class="selection-header">
-              <ion-icon name="location-outline"></ion-icon>
-              <span class="selection-label">Seleziona Biblioteca</span>
-            </div>
-            
-            <ion-item class="library-select-item">
-              <ion-select 
-                [(ngModel)]="bibliotecheSelezionate[libro.id]"
-                (ionChange)="cambiaBiblioteca(libro.id, $event.detail.value)"
-                placeholder="Scegli biblioteca..."
-                interface="popover">
-                <ion-select-option 
-                  *ngFor="let library of ottieniBiblioteceDisponibiliPerLibro(libro.id)" 
-                  [value]="library.id">
-                  {{ library.name }} ({{ ottieniNumeroCopieLibroDaBiblioteca(libro.id, library.id) }} copie)
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-
-            
-            <div class="copies-info-card" *ngIf="bibliotecheSelezionate[libro.id]">
-              <div class="copies-details">
-                <ion-icon name="copy-outline"></ion-icon>
-                <span>{{ ottieniNumeroCopieLibroDaBiblioteca(libro.id, bibliotecheSelezionate[libro.id]) }} copie disponibili</span>
-              </div>
-            </div>
+          <div class="library-selection">
+            <ion-select 
+              [placeholder]="'Seleziona biblioteca'"
+              (ionChange)="cambiaBiblioteca(libro.id, $event.detail.value)"
+              [disabled]="ottieniBiblioteceDisponibiliPerLibro(libro.id).length === 0">
+              
+              <ion-select-option 
+                *ngFor="let biblioteca of ottieniBiblioteceDisponibiliPerLibro(libro.id)" 
+                [value]="biblioteca.id">
+                {{ biblioteca.name }} - {{ ottieniNumeroCopieLibroDaBiblioteca(libro.id, biblioteca.id) }} copie
+              </ion-select-option>
+            </ion-select>
           </div>
-                
-          <div class="card-actions" *ngIf="biblioteche.length > 0">
-            <ion-button 
-              expand="block" 
-              class="modern-button primary-btn"
-              [disabled]="!abilitaPrestito(libro.id) || isProcessingAction[libro.id]"
-              (click)="richiediPrestito(libro)">
-              <ion-spinner name="crescent" *ngIf="isProcessingAction[libro.id]"></ion-spinner>
-              <ion-icon name="download-outline" slot="start" *ngIf="!isProcessingAction[libro.id]"></ion-icon>
-              {{ isProcessingAction[libro.id] ? 'Elaborazione...' : 'Prendi in Prestito' }}
-            </ion-button>
-            
-            <ion-button 
-              expand="block" 
-              class="modern-button secondary-btn"
-              fill="outline"
-              [disabled]="!abilitaPrenotazione(libro.id) || isProcessingAction[libro.id]"
-              (click)="richiediPrenotazione(libro)">
-              <ion-spinner name="crescent" *ngIf="isProcessingAction[libro.id]"></ion-spinner>
-              <ion-icon name="bookmark-outline" slot="start" *ngIf="!isProcessingAction[libro.id]"></ion-icon>
-              {{ isProcessingAction[libro.id] ? 'Elaborazione...' : 'Prenota' }}
-            </ion-button>
-          </div>          
-          <div class="no-libraries-message" *ngIf="biblioteche.length === 0">
+
+          <!-- Messaggio quando il libro non è disponibile in nessuna biblioteca -->
+          <div *ngIf="ottieniBiblioteceDisponibiliPerLibro(libro.id).length === 0" class="no-library-message">
             <ion-icon name="alert-circle-outline"></ion-icon>
-            <span>Nessuna biblioteca disponibile nel sistema</span>
+            <span>Libro non disponibile in nessuna biblioteca</span>
+          </div>
+
+          <!-- Messaggio quando il libro non esiste nella biblioteca selezionata -->
+          <div *ngIf="libroNonDisponibileInBiblioteca(libro.id)" class="not-available-message">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            <span>Libro non presente in questa biblioteca</span>
+          </div>
+
+          <div class="action-buttons">
+            <ion-button 
+              *ngIf="abilitaPrestito(libro.id)"
+              (click)="richiediPrestito(libro)"
+              [disabled]="isProcessingAction[libro.id]"
+              color="primary">
+              <ion-icon name="download-outline"></ion-icon>
+              Richiedi Prestito
+            </ion-button>
+
+            <ion-button 
+              *ngIf="abilitaPrenotazione(libro.id)"
+              (click)="richiediPrenotazione(libro)"
+              [disabled]="isProcessingAction[libro.id]"
+              color="warning">
+              <ion-icon name="bookmark-outline"></ion-icon>
+              Prenota
+            </ion-button>
+
+            <!-- Pulsante disabilitato quando il libro non esiste nella biblioteca -->
+            <ion-button 
+              *ngIf="!abilitaPrestito(libro.id) && !abilitaPrenotazione(libro.id) && bibliotecheSelezionate[libro.id] && libroNonDisponibileInBiblioteca(libro.id)"
+              disabled="true"
+              color="medium">
+              <ion-icon name="ban-outline"></ion-icon>
+              Non Disponibile
+            </ion-button>
           </div>
         </div>
       </div>    

@@ -176,6 +176,7 @@ export class DashboardPage implements OnInit {
   accettaPrenotazione(idPrenotazione: number) {
     this.loanService.aggiornaStatoPrenotazione(idPrenotazione, { status: 'approved' }).subscribe({
       next: () => {
+        console.log("HELLO, prenotazione accettata");
         this.caricaDatiBibliotecario();
       },
       error: (error) => {

@@ -56,6 +56,9 @@ export class CatalogPage implements OnInit {
   toastMessage = '';
   toastColor = 'success';
 
+  // Aggiungi una nuova proprietà per tracciare se il libro esiste nella biblioteca
+  libroEsisteInBiblioteca: { [bookId: number]: { [libraryId: number]: boolean } } = {};
+
   constructor(
     private libraryService: LibraryService,
     private loanService: LoanService,
@@ -118,31 +121,50 @@ private caricaNumeroCopiePerBiblioteca() {
     return;
   
   this.copieLibroPerBiblioteca = {};
+  this.libroEsisteInBiblioteca = {}; // Inizializza la nuova mappa
   
   this.libri.forEach(libro => {
     this.copieLibroPerBiblioteca[libro.id] = {};
+    this.libroEsisteInBiblioteca[libro.id] = {}; // Inizializza per ogni libro
     
     this.biblioteche.forEach(library => {
       this.libraryService.ottieniLibriBiblioteca(library.id).subscribe({
         next: (response: any) => {
           if (response.status === 'success' && response.data) {
             const libraryBook = response.data.find((lb: LibraryBook) => lb.id === libro.id);
-            this.copieLibroPerBiblioteca[libro.id][library.id] = libraryBook ? (libraryBook.copies || 0) : 0;
             
-            console.log(`Libro "${libro.title}" in "${library.name}": ${this.copieLibroPerBiblioteca[libro.id][library.id]} copie`);
+            if (libraryBook) {
+              // Il libro esiste nella biblioteca
+              this.libroEsisteInBiblioteca[libro.id][library.id] = true;
+              this.copieLibroPerBiblioteca[libro.id][library.id] = libraryBook.copies || 0;
+            } else {
+              // Il libro NON esiste nella biblioteca
+              this.libroEsisteInBiblioteca[libro.id][library.id] = false;
+              this.copieLibroPerBiblioteca[libro.id][library.id] = 0;
+            }
+            
+            console.log(`Libro "${libro.title}" in "${library.name}": ${this.copieLibroPerBiblioteca[libro.id][library.id]} copie, esiste: ${this.libroEsisteInBiblioteca[libro.id][library.id]}`);
           } else {
+            this.libroEsisteInBiblioteca[libro.id][library.id] = false;
             this.copieLibroPerBiblioteca[libro.id][library.id] = 0;
           }
         },
         error: (error: any) => {
+          this.libroEsisteInBiblioteca[libro.id][library.id] = false;
           this.copieLibroPerBiblioteca[libro.id][library.id] = 0;
         }
       });
     });
   });
 }  
-ottieniBiblioteceDisponibiliPerLibro(idLibro: number): Library[] {
-    return this.biblioteche;
+libroEsisteNellaBiblioteca(idLibro: number, idBiblioteca: number): boolean {
+    return this.libroEsisteInBiblioteca[idLibro]?.[idBiblioteca] || false;
+  }
+
+  ottieniBiblioteceDisponibiliPerLibro(idLibro: number): Library[] {
+    return this.biblioteche.filter(biblioteca => 
+      this.libroEsisteNellaBiblioteca(idLibro, biblioteca.id)
+    );
   }
 
   ottieniNumeroCopieLibroDaBiblioteca(idLibro: number, idBiblioteca: number): number {
@@ -157,6 +179,9 @@ ottieniBiblioteceDisponibiliPerLibro(idLibro: number): Library[] {
     const idBibliotecaSelezionata = this.bibliotecheSelezionate[idLibro];
     if (!idBibliotecaSelezionata) return false;
     
+    // Verifica che il libro esista nella biblioteca
+    if (!this.libroEsisteNellaBiblioteca(idLibro, idBibliotecaSelezionata)) return false;
+    
     const availableCopies = this.ottieniNumeroCopieLibroDaBiblioteca(idLibro, idBibliotecaSelezionata);
     return availableCopies > 0;
   }
@@ -165,8 +190,19 @@ ottieniBiblioteceDisponibiliPerLibro(idLibro: number): Library[] {
     const idBibliotecaSelezionata = this.bibliotecheSelezionate[idLibro];
     if (!idBibliotecaSelezionata) return false;
     
+    // Verifica che il libro esista nella biblioteca
+    if (!this.libroEsisteNellaBiblioteca(idLibro, idBibliotecaSelezionata)) return false;
+    
     const availableCopies = this.ottieniNumeroCopieLibroDaBiblioteca(idLibro, idBibliotecaSelezionata);
-    return availableCopies === 0;
+    return availableCopies === 0; // Prenotabile solo se esiste ma ha 0 copie disponibili
+  }
+
+  // Nuovo metodo per verificare se mostrare un messaggio di "non disponibile"
+  libroNonDisponibileInBiblioteca(idLibro: number): boolean {
+    const idBibliotecaSelezionata = this.bibliotecheSelezionate[idLibro];
+    if (!idBibliotecaSelezionata) return false;
+    
+    return !this.libroEsisteNellaBiblioteca(idLibro, idBibliotecaSelezionata);
   }
 
   async richiediPrestito(libro: Book) {

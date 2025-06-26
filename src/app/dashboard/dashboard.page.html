@@ -247,11 +247,11 @@
 
         <!-- Prenotazioni in attesa -->
         <div *ngIf="selezione === 'reservations'">
-          <ion-card *ngFor="let reservation of prenotazioniAttesa" class="pending-card">
+          <ion-card *ngFor="let prenotazione of prenotazioniAttesa" class="pending-card">
             <ion-card-header>
               <ion-card-title>
                 <ion-icon name="hourglass"></ion-icon>
-                {{ reservation.title }}
+                {{ prenotazione.title }}
               </ion-card-title>
             </ion-card-header>
             <ion-card-content>
@@ -259,19 +259,19 @@
                 <ion-item>
                   <ion-label>
                     <h3>Utente</h3>
-                    <p>{{ reservation.username }}</p>
+                    <p>{{ prenotazione.username }}</p>
                   </ion-label>
                 </ion-item>
                 <ion-item>
                   <ion-label>
                     <h3>Biblioteca</h3>
-                    <p>{{ reservation.library_name }}</p>
+                    <p>{{ prenotazione.library_name }}</p>
                   </ion-label>
                 </ion-item>
                 <ion-item>
                   <ion-label>
                     <h3>Data Richiesta</h3>
-                    <p>{{ reservation.reservation_date | date }}</p>
+                    <p>{{ prenotazione.reservation_date | date }}</p>
                   </ion-label>
                 </ion-item>
               </ion-list>
@@ -280,7 +280,7 @@
                 <ion-button 
                   expand="block" 
                   color="success"
-                  (click)="accettaPrenotazione(reservation.id)">
+                  (click)="accettaPrenotazione(prenotazione.id)">
                   <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
                   Approva
                 </ion-button>
@@ -288,7 +288,7 @@
                   expand="block" 
                   color="danger"
                   fill="outline"
-                  (click)="rifiutaPrenotazione(reservation.id)">
+                  (click)="rifiutaPrenotazione(prenotazione.id)">
                   <ion-icon name="close-circle-outline" slot="start"></ion-icon>
                   Rifiuta
                 </ion-button>
