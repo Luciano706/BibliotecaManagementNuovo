@@ -13,7 +13,7 @@ export interface Book {
   category: string;
   total_copies?: number;
   available_in_libraries?: number;
-  copies?: number; // for library-specific books
+  copies?: number;
 }
 
 export interface LibraryBook extends Book {

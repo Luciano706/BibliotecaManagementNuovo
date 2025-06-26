@@ -15,11 +15,12 @@ export class LibraryService {
     return this.http.get<ApiResponse<Library[]>>('/api/libraries');
   }
 
-  // NON USATA ANCORA
+  // NON USATA, commentata per adesso
+  /*
   ottieniBiblioteca(idBiblioteca: number): Observable<ApiResponse<Library>> {
     return this.http.get<ApiResponse<Library>>(`/api/libraries/${idBiblioteca}`);
   }
-
+  */
   ottieniLibriBiblioteca(idBiblioteca: number): Observable<ApiResponse<LibraryBook[]>> {
     return this.http.get<ApiResponse<LibraryBook[]>>(`/api/libraries/${idBiblioteca}/books`);
   }

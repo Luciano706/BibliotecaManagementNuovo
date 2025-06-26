@@ -2,7 +2,7 @@ export interface User {
   id: number;
   username: string;
   email: string;
-  role: 'member' | 'librarian' | 'admin'; //Nota: deve stare in inglese altrimenti non va con l'API
+  role: 'member' | 'librarian' | 'admin';
   password?: string;
 }
 
