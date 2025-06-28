@@ -77,7 +77,7 @@ export class AuthService {
 
 
 
-  checkValiditaSessione(): boolean { //RIVEDERE
+  checkValiditaSessione(): boolean {
     const timeLogin = localStorage.getItem('timeLogin');
     if (timeLogin) {
       const loginTime = parseInt(timeLogin, 10);
