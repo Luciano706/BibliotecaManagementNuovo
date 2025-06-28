@@ -33,6 +33,7 @@ export class RegisterPage implements OnInit {
   toastMessage = '';
   showToast = false;
   libraries: Library[] = [];
+  coloreToast = 'danger';
 
   constructor(
     private formBuilder: FormBuilder,
@@ -129,6 +130,7 @@ export class RegisterPage implements OnInit {
 
   private showToastMessage(message: string, color: string = 'danger') {
     this.toastMessage = message;
+    this.coloreToast = color;
     this.showToast = true;
   }
 

@@ -212,11 +212,11 @@
                         </div>
                         <ion-label position="stacked" class="field-label">
                           <h3>Biblioteca</h3>
-                          <p>{{ isAdmin() ? 'La tua biblioteca assegnata' : 'Seleziona la biblioteca di destinazione' }}</p>
+                          <p>{{ isBibliotecario() ? 'La tua biblioteca assegnata' : 'Seleziona la biblioteca di destinazione' }}</p>
                         </ion-label>
                         
                         <ion-select 
-                          *ngIf="!isAdmin()"
+                          *ngIf="!isBibliotecario()"
                           formControlName="library_id" 
                           placeholder="Seleziona biblioteca"
                           class="form-input">
@@ -226,7 +226,7 @@
                             {{ biblioteca.name }}
                           </ion-select-option>
                         </ion-select>
-                        <div *ngIf="isAdmin()" class="fixed-library-display">
+                        <div *ngIf="isBibliotecario()" class="fixed-library-display">
                           <div class="assigned-library">
                             <span class="library-name">{{ ottieniBibliotecaAssegnata() }}</span>
                             <small class="library-note">Biblioteca assegnata</small>
@@ -417,34 +417,44 @@
                     </div>
                   </div>
 
-                  <div class="error-messages" *ngIf="aggiungiLibroABibliotecaForm.invalid && aggiungiLibroABibliotecaForm.touched">
-                    <div class="error-item" *ngIf="aggiungiLibroABibliotecaForm.get('library_id')?.hasError('required') && !isAdmin()">
+                  <div class="error-messages" *ngIf="(aggiungiLibroABibliotecaForm.touched || aggiungiLibroABibliotecaForm.dirty) && !isFormValid()">
+                    <!-- Errori per gli admin senza biblioteca selezionata -->
+                    <div class="error-item" *ngIf="!isBibliotecario() && !aggiungiLibroABibliotecaForm.get('library_id')?.value">
                       <ion-icon name="alert-circle-outline"></ion-icon>
-                      <span>Biblioteca è richiesta</span>
+                      <span>Seleziona una biblioteca</span>
                     </div>
-                    <div class="error-item" *ngIf="aggiungiLibroABibliotecaForm.get('book_id')?.hasError('required')">
+                    
+                    <!-- Errori per azione "existing" -->
+                    <div class="error-item" *ngIf="aggiungiLibroABibliotecaForm.get('action')?.value === 'existing' && !aggiungiLibroABibliotecaForm.get('book_id')?.value">
                       <ion-icon name="alert-circle-outline"></ion-icon>
                       <span>Seleziona un libro dal catalogo</span>
                     </div>
-                    <div class="error-item" *ngIf="aggiungiLibroABibliotecaForm.get('title')?.hasError('required')">
+                    
+                    <!-- Errori per azione "new" -->
+                    <div class="error-item" *ngIf="aggiungiLibroABibliotecaForm.get('action')?.value === 'new' && !aggiungiLibroABibliotecaForm.get('title')?.value">
                       <ion-icon name="alert-circle-outline"></ion-icon>
                       <span>Titolo è richiesto</span>
                     </div>
-                    <div class="error-item" *ngIf="aggiungiLibroABibliotecaForm.get('author')?.hasError('required')">
+                    
+                    <div class="error-item" *ngIf="aggiungiLibroABibliotecaForm.get('action')?.value === 'new' && !aggiungiLibroABibliotecaForm.get('author')?.value">
                       <ion-icon name="alert-circle-outline"></ion-icon>
                       <span>Autore è richiesto</span>
                     </div>
-                    <div class="error-item" *ngIf="aggiungiLibroABibliotecaForm.get('isbn')?.hasError('required')">
+                    
+                    <div class="error-item" *ngIf="aggiungiLibroABibliotecaForm.get('action')?.value === 'new' && !aggiungiLibroABibliotecaForm.get('isbn')?.value">
                       <ion-icon name="alert-circle-outline"></ion-icon>
                       <span>ISBN è richiesto</span>
                     </div>
-                    <div class="error-item" *ngIf="aggiungiLibroABibliotecaForm.get('category')?.hasError('required')">
+                    
+                    <div class="error-item" *ngIf="aggiungiLibroABibliotecaForm.get('action')?.value === 'new' && !aggiungiLibroABibliotecaForm.get('category')?.value">
                       <ion-icon name="alert-circle-outline"></ion-icon>
                       <span>Categoria è richiesta</span>
                     </div>
-                    <div class="error-item" *ngIf="aggiungiLibroABibliotecaForm.get('copies')?.hasError('required')">
+                    
+                    <!-- Errori per numero copie -->
+                    <div class="error-item" *ngIf="!aggiungiLibroABibliotecaForm.get('copies')?.value || aggiungiLibroABibliotecaForm.get('copies')?.value < 1">
                       <ion-icon name="alert-circle-outline"></ion-icon>
-                      <span>Numero di copie è richiesto</span>
+                      <span>Numero di copie deve essere almeno 1</span>
                     </div>
                   </div>
 

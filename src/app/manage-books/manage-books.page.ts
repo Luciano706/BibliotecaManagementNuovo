@@ -155,7 +155,7 @@ export class ManageBooksPage implements OnInit {
     }
   }
 
-  isAdmin(): boolean {
+  isBibliotecario(): boolean {
     return this.authService.getRuoloRaw() === 'librarian';
   }
 
@@ -282,17 +282,27 @@ export class ManageBooksPage implements OnInit {
   }
 
   isFormValid(): boolean {
-    if (this.isAdmin()) {
-      const formValue = this.aggiungiLibroABibliotecaForm.getRawValue();
-      const managedLibrary = this.biblioteche.find(lib => lib.manager_id === this.utenteAttuale!.id);
-      
-      return managedLibrary && 
-             formValue.action && 
-             formValue.copies >= 1 &&
-             ((formValue.action === 'existing' && formValue.book_id) ||
-              (formValue.action === 'new' && formValue.title && formValue.author && formValue.isbn && formValue.category));
+    const formValue = this.aggiungiLibroABibliotecaForm.getRawValue();
+    
+    // Validazioni comuni
+    if (!formValue.action || !formValue.copies || formValue.copies < 1) {
+      return false;
     }
-    return this.aggiungiLibroABibliotecaForm.valid;
+
+    if (this.isBibliotecario()) {
+      // Assegnazione della biblioteca per i librarian, aflse in caso di mancata biblioteca assegnata (caso impossibile)
+      const managedLibrary = this.biblioteche.find(lib => lib.manager_id === this.utenteAttuale!.id);
+      if (!managedLibrary) {
+        return false;
+      }
+    } else {
+      // Verifica della biblioteca selezionata
+      if (!formValue.library_id) {
+        return false;
+      }
+    }
+    return ((formValue.action === 'existing' && formValue.book_id) ||
+            (formValue.action === 'new' && formValue.title && formValue.author && formValue.isbn && formValue.category));
   }
 
   tornaAllaHome() {

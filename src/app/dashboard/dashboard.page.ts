@@ -163,6 +163,7 @@ export class DashboardPage implements OnInit {
   }
 
   ottieniStato(stato: string): string {
+    console.log(stato);
     switch (stato) {
       case 'approved': return 'Approvato';
       case 'rejected': return 'Rifiutato';
@@ -246,5 +247,28 @@ export class DashboardPage implements OnInit {
     return this.authService.getUsername();  
   }
 
+  ottieniIconaPerStato(stato: string): string {
+    switch (stato) {
+      case 'approved': return 'checkmark-circle-outline';
+      case 'rejected': return 'close-circle-outline';
+      case 'pending': return 'hourglass-outline';
+      case 'active': return 'play-circle-outline';
+      case 'completed': return 'checkmark-done-circle-outline';
+      case 'expired': return 'warning-outline';
+      default: return 'help-circle-outline';
+    }
+  }
+
+  ottieniColoreTestoPerStato(stato: string): string {
+    switch (stato) {
+      case 'approved': return '#10b981';  // Verde
+      case 'rejected': return '#ef4444';  // Rosso
+      case 'pending': return '#f59e0b';   // Arancione
+      case 'active': return '#3b82f6';    // Blu
+      case 'completed': return '#6b7280'; // Grigio
+      case 'expired': return '#ef4444';   // Rosso
+      default: return '#6b7280';          // Grigio default
+    }
+  }
 
 }

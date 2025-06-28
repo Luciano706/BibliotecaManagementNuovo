@@ -54,7 +54,6 @@ export class CatalogPage implements OnInit {
   toastMessage = '';
   toastColor = 'success';
 
-  // Aggiungi una nuova proprietà per tracciare se il libro esiste nella biblioteca
   libroEsisteInBiblioteca: { [bookId: number]: { [libraryId: number]: boolean } } = {};
 
   constructor(
@@ -76,10 +75,32 @@ export class CatalogPage implements OnInit {
       alertCircleOutline,
       arrowBackOutline
     });
-  }  ngOnInit() {
+  }
+
+  ngOnInit() {
+    console.log('CatalogPage initialized');
+  }
+
+  ionViewWillEnter() {
+    console.log('CatalogPage entering - refreshing data');
+    this.pulisciERicarica();
+  }
+
+  private pulisciERicarica() {
+    //cancella tutto quello che c'era
+    this.isLoading = true;
+    this.flagBibliotecheCaricate = false;
+    this.libri = [];
+    this.biblioteche = [];
+    this.copieLibroPerBiblioteca = {};
+    this.libroEsisteInBiblioteca = {};
+    this.bibliotecheSelezionate = {};
+    this.isProcessingAction = {};
+
+    // Ricarica i dati
     this.caricaBiblioteche();
     this.caricaLibri();
-}
+  }
 
 caricaLibri() {
   this.libraryService.ottieniTuttiLibri().subscribe({

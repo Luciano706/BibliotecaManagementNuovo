@@ -351,6 +351,16 @@
                       <span class="value">{{ prestito.library_name }}</span>
                     </div>
                   </div>
+                  <!-- ✅ AGGIUNTO: Info stato con icona specifica -->
+                  <div class="info-item">
+                    <ion-icon [name]="ottieniIconaPerStato(prestito.status)"></ion-icon>
+                    <div>
+                      <span class="label">Stato</span>
+                      <span class="value" [style.color]="ottieniColoreTestoPerStato(prestito.status)">
+                        {{ ottieniStato(prestito.status) }}
+                      </span>
+                    </div>
+                  </div>
                   <div class="info-item">
                     <ion-icon name="calendar-outline"></ion-icon>
                     <div>
@@ -358,7 +368,7 @@
                       <span class="value">{{ prestito.loan_date | date }}</span>
                     </div>
                   </div>
-                  <div class="info-item">
+                  <div class="info-item" *ngIf="prestito.due_date && prestito.status !== 'rejected'">
                     <ion-icon name="time-outline"></ion-icon>
                     <div>
                       <span class="label">Scadenza</span>
@@ -371,6 +381,27 @@
                       <span class="label">Data Restituzione</span>
                       <span class="value">{{ prestito.return_date | date }}</span>
                     </div>
+                  </div>
+                </div>
+
+                <div class="card-actions" *ngIf="prestito.status === 'pending'">
+                  <div class="action-buttons-grid">
+                    <ion-button 
+                      color="success"
+                      size="small"
+                      fill="solid"
+                      (click)="accettaPrestito(prestito.id)">
+                      <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+                      Approva
+                    </ion-button>
+                    <ion-button 
+                      color="danger"
+                      size="small"
+                      fill="outline"
+                      (click)="rifiutaPrestito(prestito.id)">
+                      <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+                      Rifiuta
+                    </ion-button>
                   </div>
                 </div>
               </div>
@@ -424,11 +455,41 @@
                     </div>
                   </div>
                   <div class="info-item">
+                    <ion-icon [name]="ottieniIconaPerStato(prenotazione.status)"></ion-icon>
+                    <div>
+                      <span class="label">Stato {{ prenotazione.status }}</span>
+                      <span class="value" [style.color]="ottieniColoreTestoPerStato(prenotazione.status)">
+                        {{ ottieniStato(prenotazione.status) }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="info-item">
                     <ion-icon name="calendar-outline"></ion-icon>
                     <div>
                       <span class="label">Data Prenotazione</span>
                       <span class="value">{{ prenotazione.reservation_date | date }}</span>
                     </div>
+                  </div>
+                </div>
+
+                <div class="card-actions" *ngIf="prenotazione.status === 'pending'">
+                  <div class="action-buttons-grid">
+                    <ion-button 
+                      color="success"
+                      size="small"
+                      fill="solid"
+                      (click)="accettaPrenotazione(prenotazione.id)">
+                      <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+                      Approva
+                    </ion-button>
+                    <ion-button 
+                      color="danger"
+                      size="small"
+                      fill="outline"
+                      (click)="rifiutaPrenotazione(prenotazione.id)">
+                      <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+                      Rifiuta
+                    </ion-button>
                   </div>
                 </div>
               </div>
