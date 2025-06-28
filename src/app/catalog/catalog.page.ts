@@ -239,24 +239,22 @@ private libroEsisteNellaBiblioteca(idLibro: number, idBiblioteca: number): boole
 
     this.loanService.creaPrestito(loanData).subscribe({
       next: (response) => {
-        console.log('✅ Risposta prestito:', response);
         
         // Gestisci diversi formati di risposta
         if (response && (response.status === 'success' || response.success === true || response.message === 'Loan created successfully')) {
-          console.log('🎉 Prestito creato con successo');
+          
           this.mostraToast('Prestito richiesto con successo!', 'success');
           if (this.copieLibroPerBiblioteca[libro.id] && this.copieLibroPerBiblioteca[libro.id][idBibliotecaSelezionata] > 0) {
             this.copieLibroPerBiblioteca[libro.id][idBibliotecaSelezionata]--;
           }
         } else if (response && !response.error) {
           // Se non c'è un errore esplicito, considera come successo
-          console.log('✅ Prestito presumibilmente creato (nessun errore)');
+         
           this.mostraToast('Prestito richiesto con successo!', 'success');
           if (this.copieLibroPerBiblioteca[libro.id] && this.copieLibroPerBiblioteca[libro.id][idBibliotecaSelezionata] > 0) {
             this.copieLibroPerBiblioteca[libro.id][idBibliotecaSelezionata]--;
           }
         } else {
-          console.log('❌ Errore nel prestito:', response);
           this.mostraToast(response.message || response.error || 'Errore nella richiesta di prestito', 'danger');
         }
         this.isProcessingAction[libro.id] = false;
@@ -296,18 +294,16 @@ private libroEsisteNellaBiblioteca(idLibro: number, idBiblioteca: number): boole
 
     this.loanService.creaPrenotazione(datiPrenotazione).subscribe({
       next: (response) => {
-        console.log('✅ Risposta prenotazione:', response);
-        
         // Gestisci diversi formati di risposta
         if (response && (response.status === 'success' || response.success === true || response.message === 'Reservation created successfully')) {
-          console.log('🎉 Prenotazione creata con successo');
+          
           this.mostraToast('Prenotazione richiesta con successo!', 'success');
         } else if (response && !response.error) {
           // Se non c'è un errore esplicito, considera come successo
-          console.log('✅ Prenotazione presumibilmente creata (nessun errore)');
+          
           this.mostraToast('Prenotazione richiesta con successo!', 'success');
         } else {
-          console.log('❌ Errore nella prenotazione:', response);
+          
           this.mostraToast(response.message || response.error || 'Errore nella prenotazione', 'danger');
         }
         this.isProcessingAction[libro.id] = false;
@@ -330,27 +326,21 @@ private libroEsisteNellaBiblioteca(idLibro: number, idBiblioteca: number): boole
   }
 
   private mostraToast(messaggio: string, colore: string = 'success') {
-    console.log('🔧 Toast - Messaggio:', messaggio);
-    console.log('🎨 Toast - Colore impostato:', colore);
-    console.log('🎨 Toast - Colore precedente:', this.toastColor);
     
     this.toastMessage = messaggio;
     this.toastColor = colore;
     this.showToast = true;
     
-    console.log('📱 Toast - Stato finale:', {
-      message: this.toastMessage,
-      color: this.toastColor,
-      show: this.showToast
-    });
+    
   }
 
   onToastDismiss() {
-    console.log('🚫 Toast dismisso');
+    
     this.showToast = false;
     this.toastMessage = '';
     this.toastColor = 'success'; // Reset al colore default
     this.bibliotecheSelezionate = {};
+    this.caricaLibri();
   }
 
   tornaAllaHome() {

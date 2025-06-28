@@ -83,6 +83,11 @@ export class DashboardPage implements OnInit {
     this.caricaDatiDashboard();
   }
 
+  ionViewWillEnter()
+  {
+    this.caricaDatiDashboard();
+  }
+
   // Metodo per ottenere il nome della biblioteca del librarian
   private async ottieniNomeBibliotecaLibrarian(): Promise<string> {
     if (this.authService.getRuoloRaw() !== 'librarian') {

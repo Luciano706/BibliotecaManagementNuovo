@@ -610,7 +610,7 @@ ion-toast {
   font-size: 20px;
 }
 
-// Stili specifici per i toast per garantire i colori corretti
+
 ion-toast {
   &.toast-success {
     --background: var(--success-gradient);

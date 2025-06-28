@@ -92,7 +92,15 @@
                     <span class="value">{{ prestito.loan_date | date }}</span>
                   </div>
                 </div>
-                <div class="info-item">
+
+                <div class="info-item" *ngIf="prestito.return_date!== null">
+                  <ion-icon name="calendar-outline"></ion-icon>
+                  <div>
+                    <span class="label">Data restituzione</span>
+                    <span class="value">{{ prestito.return_date | date }}</span>
+                  </div>
+                </div>
+                <div class="info-item" *ngIf="prestito.return_date === null && prestito.status !== 'rejected'">
                   <ion-icon name="time-outline"></ion-icon>
                   <div>
                     <span class="label">Scadenza</span>
