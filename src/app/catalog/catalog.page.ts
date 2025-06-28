@@ -78,11 +78,9 @@ export class CatalogPage implements OnInit {
   }
 
   ngOnInit() {
-    console.log('CatalogPage initialized');
   }
 
   ionViewWillEnter() {
-    console.log('CatalogPage entering - refreshing data');
     this.pulisciERicarica();
   }
 
@@ -231,7 +229,6 @@ private libroEsisteNellaBiblioteca(idLibro: number, idBiblioteca: number): boole
       return;
     }
 
-    
     this.isProcessingAction[libro.id] = true;
 
     const loanData: CreateLoanRequest = {
@@ -247,12 +244,24 @@ private libroEsisteNellaBiblioteca(idLibro: number, idBiblioteca: number): boole
           if (this.copieLibroPerBiblioteca[libro.id] && this.copieLibroPerBiblioteca[libro.id][idBibliotecaSelezionata] > 0) {
             this.copieLibroPerBiblioteca[libro.id][idBibliotecaSelezionata]--;
           }
+        } else {
+          this.mostraToast(response.message || 'Errore nella richiesta di prestito', 'danger');
         }
         this.isProcessingAction[libro.id] = false;
       },
       error: (error) => {
         console.error('Error creating loan:', error);
-        this.mostraToast('Errore nella richiesta di prestito', 'danger');
+        
+        // Gestisci errori specifici
+        if (error.error && error.error.error) {
+          this.mostraToast(error.error.error, 'danger');
+        } else if (error.status === 400) {
+          this.mostraToast('Libro non disponibile per il prestito', 'warning');
+        } else if (error.status === 403) {
+          this.mostraToast('Non hai i permessi per richiedere questo prestito', 'danger');
+        } else {
+          this.mostraToast('Errore nella richiesta di prestito', 'danger');
+        }
         this.isProcessingAction[libro.id] = false;
       }
     });
@@ -265,7 +274,6 @@ private libroEsisteNellaBiblioteca(idLibro: number, idBiblioteca: number): boole
       return;
     }
 
-
     this.isProcessingAction[libro.id] = true;
 
     const datiPrenotazione: CreateReservationRequest = {
@@ -277,19 +285,31 @@ private libroEsisteNellaBiblioteca(idLibro: number, idBiblioteca: number): boole
     this.loanService.creaPrenotazione(datiPrenotazione).subscribe({
       next: (response) => {
         if (response.status === 'success') {
-          this.mostraToast('Prenotazione effettuata con successo!', 'success');
+          this.mostraToast('Prenotazione richiesta con successo!', 'success');
+        } else {
+          this.mostraToast(response.message || 'Errore nella prenotazione', 'danger');
         }
         this.isProcessingAction[libro.id] = false;
       },
       error: (error) => {
-        console.error('Error creating reservation:', error);
-        this.mostraToast('Errore nella prenotazione', 'danger');
+        
+        // Gestisci errori specifici
+        if (error.error && error.error.error) {
+          this.mostraToast(error.error.error, 'danger');
+        } else if (error.status === 400) {
+          this.mostraToast('Libro non disponibile per la prenotazione', 'warning');
+        } else if (error.status === 403) {
+          this.mostraToast('Non hai i permessi per effettuare questa prenotazione', 'danger');
+        } else {
+          this.mostraToast('Errore nella prenotazione', 'danger');
+        }
         this.isProcessingAction[libro.id] = false;
       }
     });
   }
 
   private mostraToast(messaggio: string, colore: string = 'success') {
+    console.log(this.toastColor);
     this.toastMessage = messaggio;
     this.toastColor = colore;
     this.showToast = true;
@@ -297,7 +317,8 @@ private libroEsisteNellaBiblioteca(idLibro: number, idBiblioteca: number): boole
 
   onToastDismiss() {
     this.showToast = false;
-    window.location.reload();
+    this.bibliotecheSelezionate={};
+    this.caricaLibri();
   }
 
   tornaAllaHome() {
