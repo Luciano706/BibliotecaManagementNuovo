@@ -15,6 +15,11 @@ export class LibraryService {
     return this.http.get<ApiResponse<Library[]>>('/api/libraries');
   }
 
+  // Metodo per ottenere tutte le biblioteche direttamente
+  ottieniTutteBiblioteche(): Observable<Library[]> {
+    return this.http.get<Library[]>('/api/libraries');
+  }
+
   // NON USATA, commentata per adesso
   /*
   ottieniBiblioteca(idBiblioteca: number): Observable<ApiResponse<Library>> {
